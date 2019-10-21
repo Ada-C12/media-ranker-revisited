@@ -1,5 +1,11 @@
 <h2>User Summary: <%= link_to @user.username, user_path(@user) %></h2>
 <p>Joined site <%= render_date @user.created_at %></p>
+<% if @user.name.nil? %>
+  <div>Name: Unknown</div>
+<% else %>
+  <div>Name: <%= @user.name %></div>
+<% end %>
+<p>Email: <%= @user.email %></p>
 
 <section class="user-votes__container">
   <h3 class="user-votes__header">Votes</h3>
