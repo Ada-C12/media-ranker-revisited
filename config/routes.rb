@@ -11,5 +11,5 @@ Rails.application.routes.draw do
   resources :users, only: [:index, :show]
   
   get "/auth/github", as: "github_login"
-  post "/auth/:provider/callback", to: "users#create", as "callback"
+  post "/auth/:provider/callback", to: "users#create", as: "callback"
 end
