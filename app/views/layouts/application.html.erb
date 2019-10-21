@@ -33,8 +33,11 @@
         </li>
       </ul>
       <ul class="nav app-header__user-nav-container">
-       <%= link_to "Login with GitHub", github_login_path %>
-
+        <% if session[:user_id] %>
+          <li class="nav-item app-header__nav_item"><%= link_to "Log out", logout_path, method: "delete", class: "btn btn-primary"%></li>
+        <% else %>
+          <li class="nav-item app-header__nav_item"><%= link_to "Login with Github", github_login_path, class: "btn btn-primary" %></li>
+        <% end %>
       </ul>
     </nav>
   </header>

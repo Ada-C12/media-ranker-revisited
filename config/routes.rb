@@ -9,6 +9,7 @@ Rails.application.routes.draw do
 
   resources :works
   post "/works/:id/upvote", to: "works#upvote", as: "upvote"
-
   resources :users, only: [:index, :show]
+
+  delete "/logout", to: "users#destroy", as: "logout"
 end
