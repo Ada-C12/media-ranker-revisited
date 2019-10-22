@@ -36,7 +36,7 @@
         <% if session[:user_id] %>
           <% user = User.find_by(id: session[:user_id]) %>
         <li class="nav-item app-header__nav_item">
-          <%= link_to "Logged in as #{user.username}", user_path(user), class: "btn btn-primary" %>
+          <%= link_to "Logged in as #{user.uid}", user_path(user), class: "btn btn-primary" %>
         </li>
         <li class="nav-item app-header__nav_item">
             <%= link_to "Log out", logout_path, method: "delete" %>
