@@ -1,9 +1,12 @@
 class UsersController < ApplicationController
   def index
+
+    is_authenticated?
     @users = User.all
   end
 
   def show
+    is_authenticated?
     @user = User.find_by(id: params[:id])
     render_404 unless @user
   end
@@ -71,13 +74,27 @@ class UsersController < ApplicationController
     return redirect_to root_path
   end
 
-
-
   def destroy
     session[:user_id] = nil
     flash[:success] = "Successfully logged out!"
 
     redirect_to root_path
+  end
+
+  private
+
+  def is_authenticated?
+
+    is_logged_in = session[:user_id]
+    if is_logged_in.nil?
+      flash[:status] = :failure
+      flash[:result_text] = "Can't access"
+
+      redirect_to root_path
+      return
+    end
+
+
   end
 
 
