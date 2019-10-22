@@ -10,12 +10,13 @@ Rails.application.routes.draw do
   get "/auth/:provider/callback", to: "users#create"
 
 
-  get "/auth/:provider/callback", to: "users#create"
-  delete "/logout", to: "users#destroy", as: "logout"
+  # get "/auth/:provider/callback", to: "users#create"
 
 
   resources :works
   post "/works/:id/upvote", to: "works#upvote", as: "upvote"
 
   resources :users, only: [:index, :show]
+  delete "/logout", to: "users#destroy", as: "logout"
+
 end
