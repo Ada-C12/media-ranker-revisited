@@ -11,6 +11,7 @@ class WorksController < ApplicationController
   end
 
   def index
+    is_authenticated?
     @works_by_category = Work.to_category_hash
   end
 
@@ -34,6 +35,7 @@ class WorksController < ApplicationController
   end
 
   def show
+    is_authenticated?
     @votes = @work.votes.order(created_at: :desc)
   end
 
@@ -92,4 +94,18 @@ class WorksController < ApplicationController
     render_404 unless @work
     @media_category = @work.category.downcase.pluralize
   end
+
+  private
+
+  def is_authenticated?
+
+    is_logged_in = session[:user_id]
+    if is_logged_in.nil?
+      flash[:status] = :failure
+      flash[:result_text] = "Can't access the page without login"
+      redirect_to root_path
+      return
+    end
+  end
+  
 end
