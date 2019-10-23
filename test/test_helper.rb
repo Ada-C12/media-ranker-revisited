@@ -36,6 +36,11 @@ class ActiveSupport::TestCase
                email: user.email,
                nickname: user.username,
              },
+             extra: {
+               raw_info: {
+                 login: user.username,
+               },
+             },
            }
   end
 
