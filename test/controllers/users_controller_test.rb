@@ -29,12 +29,38 @@ describe UsersController do
     end
 
     it "redirects to the login route if given invalid user data" do
-      new_user = User.new(name: "Kathy", email: "whatev@git.com", uid: nil)
+      start_count = User.count
+      invalid_user = User.new(provider: "github", username: "", email: "invaliduser@none.org")
 
-      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(new_user))
-      expect { get auth_callback_path(:github) }.wont_change "User.count"
+      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(invalid_user))
+      get auth_callback_path(:github)
 
       must_redirect_to root_path
+
+      User.count.must_equal start_count
+
+      session[:user_id].must_be_nil
+      #   new_user = User.new(name: "Kathy", email: "whatev@git.com", uid: nil)
+
+      #   OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(new_user))
+      #   expect { get auth_callback_path(:github) }.wont_change "User.count"
+
+      #   must_redirect_to root_path
+      # end
+    end
+  end
+  describe "logout" do
+    it "will log out an existing user" do
+      perform_login
+
+      expect {
+        delete logout_path
+      }.wont_change "User.count"
+
+      expect(session[:user_id]).must_be_nil
+    end
+
+    it "will not log out a guest who is not signed in" do
     end
   end
 end

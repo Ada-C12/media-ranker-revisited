@@ -199,15 +199,41 @@ describe WorksController do
     end
 
     it "redirects to the work page after the user has logged out" do
-      skip
+      user = users(:dan)
+
+      perform_login(user)
+
+      logout_info = {
+        user: {
+          username: user.username,
+        },
+      }
+
+      delete logout_path, params: logout_info
+
+      expect {
+        post upvote_path(existing_work.id)
+      }.wont_change "existing_work.votes.count"
+
+      must_redirect_to work_path(existing_work.id)
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      skip
+      work = works(:movie)
+
+      perform_login
+
+      expect {
+        post upvote_path(work.id)
+      }.must_change "work.votes.count", 1
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      skip
+      perform_login
+
+      expect {
+        post upvote_path(existing_work.id)
+      }.wont_change "existing_work.votes.count"
     end
   end
 end
