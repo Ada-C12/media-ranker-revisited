@@ -2,6 +2,7 @@ require "test_helper"
 
 describe WorksController do
   let(:existing_work) { works(:album) }
+  let(:user) { users(:kari) }
 
   describe "root" do
     it "succeeds with all media types" do
@@ -34,20 +35,39 @@ describe WorksController do
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
 
   describe "index" do
-    it "succeeds when there are works" do
-      get works_path
+    describe "logged-in users" do
+      before do
+        perform_login(user)
+      end
+      it "succeeds when there are works" do
+        get works_path
 
-      must_respond_with :success
-    end
-
-    it "succeeds when there are no works" do
-      Work.all do |work|
-        work.destroy
+        must_respond_with :success
       end
 
-      get works_path
+      it "succeeds when there are no works" do
+        Work.all do |work|
+          work.destroy
+        end
 
-      must_respond_with :success
+        get works_path
+
+        must_respond_with :success
+      end
+    end
+
+    describe "guest users" do
+      it "can access the root path" do
+        get root_path
+        must_respond_with :success
+      end
+
+      it "must redirect when attempting to access the index page" do
+        get works_path
+
+        must_respond_with :redirect
+        must_redirect_to :root_path
+      end
     end
   end
 
