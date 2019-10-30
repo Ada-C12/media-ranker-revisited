@@ -7,9 +7,9 @@ require "minitest/reporters"  # for Colorized output
 
 #  For colorful output!
 Minitest::Reporters.use!(
-  Minitest::Reporters::SpecReporter.new,
-  ENV,
-  Minitest.backtrace_filter
+Minitest::Reporters::SpecReporter.new,
+ENV,
+Minitest.backtrace_filter
 )
 
 # To add Capybara feature tests add `gem "minitest-rails-capybara"`
@@ -35,14 +35,7 @@ class ActiveSupport::TestCase
   # for fixture data
   def mock_auth_hash(user)
     return {
-      provider: user.provider,
-      uid: user.uid,
-      info: {
-        email: user.email,
-        nickname: user.username,
-        name: user.name
-      }
-    }
+    provider: user.provider, uid: user.uid, info: { email: user.email, nickname: user.username, name: user.name } }
   end
   
   def perform_login(user = nil)
