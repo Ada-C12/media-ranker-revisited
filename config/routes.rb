@@ -9,5 +9,5 @@ Rails.application.routes.draw do
   delete "/logout", to: "users#destroy", as: "logout"
   
   get "/auth/github", as: "github_login"
-  get "/auth/:provider/callback", to: "users#create"
+  get "/auth/:provider/callback", to: "users#create", as: "auth_callback"
 end
