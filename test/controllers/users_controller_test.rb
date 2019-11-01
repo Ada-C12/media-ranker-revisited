@@ -51,13 +51,6 @@ describe UsersController do
   end
   
   describe "show" do
-    
-    # def show
-    #   @user = User.find_by(id: params[:id])
-    #   render_404 unless @user
-    # end
-    
-    
   end
   
   describe "logout" do
