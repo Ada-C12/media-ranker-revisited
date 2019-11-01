@@ -1,4 +1,6 @@
 class UsersController < ApplicationController
+  before_action :require_login, only: :current
+
   def index
     @users = User.all
   end
@@ -34,6 +36,7 @@ class UsersController < ApplicationController
 
   def current
     @current_user = User.find_by(id: session[:user_id])
+
     unless @current_user
       flash[:error] = "You must be logged in to see this page"
       redirect_to root_path
@@ -41,9 +44,9 @@ class UsersController < ApplicationController
   end 
 
   def destroy
+    p "KRISTINA"
     session[:user_id] = nil
     flash[:success] = "Successfully logged out!"
-
     redirect_to root_path
   end
 end
