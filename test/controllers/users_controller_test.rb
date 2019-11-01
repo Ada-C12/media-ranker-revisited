@@ -51,7 +51,22 @@ describe UsersController do
   end
   
   describe "show" do
-  end
+    it "responds with success when showing a valid user" do
+      test_user = users(:grace)
+      
+      get user_path(test_user.id)
+      
+      must_respond_with :success
+    end
+    
+    it "redirects to users path if given invalid user id" do
+      invalid_id = -1
+      
+      get user_path(invalid_id)
+      
+      must_respond_with :not_found
+    end
+  end  
   
   describe "logout" do
     it "can log out a valid user and redirects to root" do
