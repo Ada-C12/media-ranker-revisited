@@ -25,17 +25,13 @@ describe UsersController do
       User.count.must_equal start_count
     end
     
-    
-    
-    
-    
-    
     it "creates an account for a new user and redirects to the root route" do
       start_count = User.count
-      user = User.create(provider: "github", uid: 99999, username: "test_user", email: "test@user.com", name: "Tester")
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com", name: "Tester")
       
       perform_login(user)
       
+      expect(flash[:success]).must_equal "Logged in as new user #{user.name}"
       session[:user_id].must_equal User.last.id
       must_redirect_to root_path
       User.count.must_equal start_count + 1
@@ -47,10 +43,21 @@ describe UsersController do
       
       perform_login(bad_user)
       
-      assert_nil(session[:user_id])
+      expect(flash[:error]).must_include "Could not create new user account: "
       must_redirect_to root_path
+      assert_nil(session[:user_id])
       User.count.must_equal start_count
     end
+  end
+  
+  describe "show" do
+    
+    # def show
+    #   @user = User.find_by(id: params[:id])
+    #   render_404 unless @user
+    # end
+    
+    
   end
   
   describe "logout" do
@@ -59,7 +66,6 @@ describe UsersController do
       user = users(:ada)
       
       perform_login(user)
-      
       delete logout_path
       
       assert_nil(session[:user_id])
@@ -68,55 +74,11 @@ describe UsersController do
       User.count.must_equal start_count      
     end
     
-    it "redirects to root if you try to log out an invalid user" do
+    it "redirects to root if you try to log out, but nobody is logged in" do
+      delete logout_path
       
+      assert_nil(session[:user_id])
+      must_redirect_to root_path      
     end
-    
-    
-    
-    
   end
 end
-
-
-
-
-
-
-# def create
-#   auth_hash = request.env["omniauth.auth"]
-
-#   user = User.find_by(uid: auth_hash[:uid], provider: "github")
-#   if user
-#     # User was found in the database
-#     flash[:success] = "Logged in as returning user #{user.name}"
-#   else
-#     # User doesn't match anything in the DB
-#     # Attempt to create a new user
-#     user = User.build_from_github(auth_hash)
-
-#     if user.save
-#       flash[:success] = "Logged in as new user #{user.name}"
-#     else
-#       # Couldn't save the user for some reason. If we
-#       # hit this it probably means there's a bug with the
-#       # way we've configured GitHub. Our strategy will
-#       # be to display error messages to make future
-#       # debugging easier.
-#       flash[:error] = "Could not create new user account: #{user.errors.messages}"
-#       return redirect_to root_path
-#     end
-#   end
-
-#   # If we get here, we have a valid user instance
-#   session[:user_id] = user.id
-#   return redirect_to root_path
-# end
-
-# def show
-#   @user = User.find_by(id: params[:id])
-#   render_404 unless @user
-# end
-
-
-
