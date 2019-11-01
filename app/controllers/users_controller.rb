@@ -3,6 +3,10 @@ class UsersController < ApplicationController
     @users = User.all
   end
   
+  
+  
+  
+  
   def create
     auth_hash = request.env["omniauth.auth"]
     

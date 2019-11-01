@@ -1,8 +1,7 @@
 require "test_helper"
 
 describe UsersController do
-  describe "index" do
-    
+  describe "index" do    
     it "responds with success when there is at least one user saved" do
       user = users(:ada)
       
@@ -11,18 +10,7 @@ describe UsersController do
       expect(User.count > 0).must_equal true
       must_respond_with :success      
     end
-    
-    
-    # it "responds with success when there are no drivers saved" do
-    #   # Act
-    #   get drivers_path
-    
-    #   # Assert
-    #   expect(Driver.count).must_equal 0
-    #   must_respond_with :success
-    # end
   end  
-  
   
   describe "login" do
     it "logs in an existing user and redirects to the root route" do
@@ -31,10 +19,16 @@ describe UsersController do
       
       perform_login(user)
       
+      expect(flash[:success]).must_equal "Logged in as returning user #{user.name}"
       session[:user_id].must_equal user.id
       must_redirect_to root_path
       User.count.must_equal start_count
     end
+    
+    
+    
+    
+    
     
     it "creates an account for a new user and redirects to the root route" do
       start_count = User.count
