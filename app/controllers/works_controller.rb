@@ -2,22 +2,29 @@ class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
   before_action :category_from_work, except: [:root, :index, :new, :create]
-
+  
   def root
     @albums = Work.best_albums
     @books = Work.best_books
     @movies = Work.best_movies
     @best_work = Work.order(vote_count: :desc).first
   end
-
+  
   def index
-    @works_by_category = Work.to_category_hash
+    if logged_in_id
+      @works_by_category = Work.to_category_hash
+    else
+      flash[:status] = :failure
+      flash[:result_text] = "You must log in to view this page"
+      redirect_to root_path
+      return
+    end
   end
-
+  
   def new
     @work = Work.new
   end
-
+  
   def create
     @work = Work.new(media_params)
     @media_category = @work.category
@@ -32,14 +39,21 @@ class WorksController < ApplicationController
       render :new, status: :bad_request
     end
   end
-
+  
   def show
-    @votes = @work.votes.order(created_at: :desc)
+    if logged_in_id
+      @votes = @work.votes.order(created_at: :desc)
+    else
+      flash[:status] = :failure
+      flash[:result_text] = "You must log in to view this page"
+      redirect_to root_path
+      return
+    end
   end
-
+  
   def edit
   end
-
+  
   def update
     @work.update_attributes(media_params)
     if @work.save
@@ -53,14 +67,14 @@ class WorksController < ApplicationController
       render :edit, status: :not_found
     end
   end
-
+  
   def destroy
     @work.destroy
     flash[:status] = :success
     flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
     redirect_to root_path
   end
-
+  
   def upvote
     flash[:status] = :failure
     if @login_user
@@ -75,21 +89,31 @@ class WorksController < ApplicationController
     else
       flash[:result_text] = "You must log in to do that"
     end
-
+    
     # Refresh the page to show either the updated vote count
     # or the error message
     redirect_back fallback_location: work_path(@work)
   end
-
+  
   private
-
+  
   def media_params
     params.require(:work).permit(:title, :category, :creator, :description, :publication_year)
   end
-
+  
   def category_from_work
     @work = Work.find_by(id: params[:id])
     render_404 unless @work
     @media_category = @work.category.downcase.pluralize
+  end
+  
+  def logged_in_id
+    user_id = session[:user_id]
+    
+    if user_id.nil?
+      return false
+    end
+    
+    return user_id
   end
 end
