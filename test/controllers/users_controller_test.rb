@@ -66,6 +66,15 @@ describe UsersController do
       end
     end
     
+    describe "destroy" do
+      it "cannot logout because user is not logged in" do
+        start_count = User.count
+        delete logout_path
+        _(User.count).must_equal start_count
+        assert_nil(session[:user_id])
+        _(flash[:warning]).wont_be_nil
+      end
+    end
     
   end
   
