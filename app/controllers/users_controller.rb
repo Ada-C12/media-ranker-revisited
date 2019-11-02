@@ -31,20 +31,20 @@ class UsersController < ApplicationController
 
     # If User successfully create save User ID in session
     session[:user_id] = user.id
+    session[:user_username] = user.username
     return redirect_to root_path
   end
 
-  def current
-    @current_user = User.find_by(id: session[:user_id])
+  # def current
+  #   @current_user = User.find_by(id: session[:user_id])
 
-    unless @current_user
-      flash[:error] = "You must be logged in to see this page"
-      redirect_to root_path
-    end
-  end 
+  #   unless @current_user
+  #     flash[:error] = "You must be logged in to see this page"
+  #     redirect_to root_path
+  #   end
+  # end 
 
   def destroy
-    p "KRISTINA"
     session[:user_id] = nil
     flash[:success] = "Successfully logged out!"
     redirect_to root_path
