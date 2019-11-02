@@ -104,6 +104,23 @@ describe UsersController do
         must_respond_with :not_found
       end
     end
+
+    describe "create" do
+      it "will not let user log in again" do
+        start_count = User.count
+        user = users(:kari)
+        
+        perform_login(user)
+        
+        perform_login(user)
+        
+        must_respond_with :redirect
+        _(User.count).must_equal start_count
+        _(session[:user_id]).must_equal user.id
+        _(flash[:warning]).wont_be_nil
+      end
+      
+    end
   
   end
   
