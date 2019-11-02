@@ -83,10 +83,14 @@ describe UsersController do
     end
     
     it "redirects to root if you try to log out, but nobody is logged in" do
+      start_count = User.count
+      
       delete logout_path
       
       assert_nil(session[:user_id])
+      assert_nil(flash[:success])
       must_redirect_to root_path      
+      User.count.must_equal start_count
     end
   end
 end
