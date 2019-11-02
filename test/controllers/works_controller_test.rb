@@ -196,13 +196,17 @@ describe WorksController do
       must_redirect_to work_path(existing_work.id)
     end
     
-    it "redirects to the root page after the user has logged out" do
+    it "redirects to the work page after the user has logged out" do
       user = users(:grace)
       
       perform_login(user)  
       delete logout_path
       
-      must_redirect_to root_path
+      post upvote_path(existing_work.id)
+      
+      expect(flash[:status]).must_equal :failure
+      expect (flash[:result_text]).must_equal "You must log in to do that"
+      must_redirect_to work_path(existing_work.id)
     end
     
     it "succeeds for a logged-in user and a fresh user-vote pair" do
@@ -218,16 +222,18 @@ describe WorksController do
       expect(flash[:status]).must_equal :success
       expect(flash[:result_text]).must_equal "Successfully upvoted!"
       must_redirect_to work_path(existing_work.id)
-      
-      
-      
-      
     end
     
     it "redirects to the work page if the user has already voted for that work" do
-      skip
+      user = users(:ada)
+      
+      perform_login(user)
+      post upvote_path(existing_work.id)
+      post upvote_path(existing_work.id)
+      
+      expect(flash[:status]).must_equal :failure
+      expect(flash[:result_text]).must_equal "Could not upvote"
+      must_redirect_to work_path(existing_work.id)
     end
   end
 end
-
-
