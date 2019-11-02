@@ -11,7 +11,6 @@ describe UsersController do
     describe "index" do
       it "can get the index path" do
         get users_path
-        
         must_respond_with :success
       end
     end
@@ -19,13 +18,11 @@ describe UsersController do
     describe "show" do
       it "can get a valid user" do
         get user_path(@user.id)
-        
         must_respond_with :success
       end
       
       it "will redirect for an invalid user" do
         get user_path(-1)
-        
         must_respond_with :not_found
       end
     end
@@ -45,6 +42,7 @@ describe UsersController do
       
       it "can log in an existing user and redirects to the root route" do
         start_count = User.count        
+        
         perform_login(@user)
         
         must_redirect_to root_path
@@ -81,7 +79,9 @@ describe UsersController do
   
     describe "index" do
       it "can get the index path" do
+        
         perform_login(@user)
+        
         get users_path
         must_respond_with :success
       end
@@ -89,13 +89,17 @@ describe UsersController do
     
     describe "show" do
       it "can get a valid user" do
+        
         perform_login(@user)
+        
         get user_path(@user.id)
         must_respond_with :success
       end
       
       it "will redirect for an invalid user" do
+        
         perform_login(@user)
+        
         get user_path(-1)
         must_respond_with :not_found
       end
