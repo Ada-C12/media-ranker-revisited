@@ -74,9 +74,35 @@ describe UsersController do
         assert_nil(session[:user_id])
         _(flash[:warning]).wont_be_nil
       end
+    end  
+  end
+  
+  describe "while logged in" do
+  
+    describe "index" do
+      it "can get the index path" do
+        perform_login(@user)
+        get users_path
+        must_respond_with :success
+      end
     end
     
+    describe "show" do
+      it "can get a valid user" do
+        perform_login(@user)
+        get user_path(@user.id)
+        must_respond_with :success
+      end
+      
+      it "will redirect for an invalid user" do
+        perform_login(@user)
+        get user_path(-1)
+        must_respond_with :not_found
+      end
+    end
+  
   end
+  
   
 end
 
