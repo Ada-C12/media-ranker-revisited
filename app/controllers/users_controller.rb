@@ -25,7 +25,7 @@ class UsersController < ApplicationController
           # way we've configured GitHub. Our strategy will
           # be to display error messages to make future
           # debugging easier.
-          flash[:danger] = "Could not create new user account: #{user.errors.messages}"
+          flash[:warning] = "Could not create new user account: #{user.errors.messages}"
           return redirect_to root_path
         end
       end
