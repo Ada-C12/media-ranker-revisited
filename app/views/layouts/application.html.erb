@@ -62,18 +62,15 @@
                 <li><%= name %>: <%= problem %></li>
               <% end %>
             <% end %>
-          </ul>
-        <% else %>
-          <% flash.each do |message_type, message| %>
-            <div class="alert alert-<%= message_type %>"><%= message %></div>
         <% end %>
+          </ul>
+          </div>
+  <% else %>
+      <% flash.each do |message_type, message| %>
+        <div class="alert alert-<%= message_type %>"><%= message %></div>
+      <% end %>
         </div>
-         <% end %>
-  <% else %>  
-    <% flash.each do |message_type, message| %>
-      <div class="alert alert-<%= message_type %>"><%= message %> </div>
-    <% end %>
-    </section>
+      </section>
   <% end %>
 
   <main>
