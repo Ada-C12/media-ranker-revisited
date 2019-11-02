@@ -193,15 +193,35 @@ describe WorksController do
       
       expect(flash[:status]).must_equal :failure
       expect (flash[:result_text]).must_equal "You must log in to do that"
-      must_respond_with :redirect
+      must_redirect_to work_path(existing_work.id)
     end
     
-    it "redirects to the work page after the user has logged out" do
-      skip
+    it "redirects to the root page after the user has logged out" do
+      user = users(:grace)
+      
+      perform_login(user)  
+      delete logout_path
+      
+      must_redirect_to root_path
     end
     
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      skip
+      user = users(:ada)
+      
+      perform_login(user)
+      post upvote_path(existing_work.id)
+      
+      last_vote = Vote.last
+      
+      expect(last_vote.user).must_equal user
+      expect(last_vote.work).must_equal existing_work
+      expect(flash[:status]).must_equal :success
+      expect(flash[:result_text]).must_equal "Successfully upvoted!"
+      must_redirect_to work_path(existing_work.id)
+      
+      
+      
+      
     end
     
     it "redirects to the work page if the user has already voted for that work" do
@@ -211,20 +231,3 @@ describe WorksController do
 end
 
 
-# flash[:status] = :failure
-# if @login_user
-#   vote = Vote.new(user: @login_user, work: @work)
-#   if vote.save
-#     flash[:status] = :success
-#     flash[:result_text] = "Successfully upvoted!"
-#   else
-#     flash[:result_text] = "Could not upvote"
-#     flash[:messages] = vote.errors.messages
-#   end
-# else
-#   flash[:result_text] = "You must log in to do that"
-# end
-
-# # Refresh the page to show either the updated vote count
-# # or the error message
-# redirect_back fallback_location: work_path(@work)
