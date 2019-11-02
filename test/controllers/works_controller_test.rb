@@ -36,7 +36,8 @@ describe WorksController do
         get works_path
         
         must_redirect_to root_path
-        expect(flash[:permission_denied]).must_equal "You must log in to view this page"
+        expect(flash[:status]).must_equal :failure
+        expect(flash[:result_text]).must_equal "You must log in to view this page"
       end
     end
     
@@ -45,7 +46,8 @@ describe WorksController do
         get work_path(existing_work.id)
         
         must_redirect_to root_path
-        expect(flash[:permission_denied]).must_equal "You must log in to view this page"
+        expect(flash[:status]).must_equal :failure
+        expect(flash[:result_text]).must_equal "You must log in to view this page"
       end
       
       it "renders 404 not_found for a bogus work ID" do

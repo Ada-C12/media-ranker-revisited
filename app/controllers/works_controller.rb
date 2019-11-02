@@ -14,7 +14,8 @@ class WorksController < ApplicationController
     if logged_in_id
       @works_by_category = Work.to_category_hash
     else
-      flash[:permission_denied] = "You must log in to view this page"
+      flash[:status] = :failure
+      flash[:result_text] = "You must log in to view this page"
       redirect_to root_path
       return
     end
@@ -43,7 +44,8 @@ class WorksController < ApplicationController
     if logged_in_id
       @votes = @work.votes.order(created_at: :desc)
     else
-      flash[:permission_denied] = "You must log in to view this page"
+      flash[:status] = :failure
+      flash[:result_text] = "You must log in to view this page"
       redirect_to root_path
       return
     end
