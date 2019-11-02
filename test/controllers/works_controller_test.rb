@@ -189,19 +189,52 @@ describe WorksController do
 
   describe "upvote" do
     it "redirects to the work page if no user is logged in" do
-      skip
+      @login_user = nil
+      work_one  = works(:album)
+      
+      expect {
+        post upvote_path(work_one.id)
+      }.wont_change "work_one.votes.count"
+      expect(flash[:result_text]).must_equal "You must log in to do that"
+      must_redirect_to work_path(work_one)
     end
 
     it "redirects to the work page after the user has logged out" do
-      skip
+      @login_user = users(:dan)
+      work_two = works(:poodr)
+
+      delete logout_path(@login_user.id)
+
+      expect {
+        post upvote_path(work_two.id)
+      }.wont_change "work_two.votes.count"
+      expect(flash[:result_text]).must_equal "You must log in to do that"
+      must_redirect_to work_path(work_two)
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      skip
+      work_three = works(:movie)
+
+      perform_login
+
+      expect {
+        post upvote_path(work_three.id)
+      }.must_change "work_three.votes.count", 1
+      expect(flash[:result_text]).must_equal "Successfully upvoted!"
+      must_redirect_to work_path(work_three)
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      skip
+      work_four = works(:poodr)
+      perform_login
+      
+      post upvote_path(work_four.id)
+      count = work_four.votes.count
+
+      expect {
+        post upvote_path(work_four.id) 
+      }.wont_change "count"
+      must_redirect_to work_path(work_four)
     end
   end
 end
