@@ -76,7 +76,7 @@ describe UsersController do
   end
   
   describe "while logged in" do
-  
+    
     describe "index" do
       it "can get the index path" do
         
@@ -104,7 +104,7 @@ describe UsersController do
         must_respond_with :not_found
       end
     end
-
+    
     describe "create" do
       it "will not let user log in again" do
         start_count = User.count
@@ -120,10 +120,20 @@ describe UsersController do
         _(flash[:warning]).wont_be_nil
       end
       
-    end
-  
+      describe "destroy" do
+        it "can log out user" do
+          user = users(:kari)
+          
+          perform_login(user)
+          
+          start_count = User.count
+          delete logout_path
+          _(User.count).must_equal start_count
+          _(session[:user_id]).must_equal nil
+          _(flash[:success]).wont_be_nil
+        end
+      end
+    end  
   end
-  
-  
 end
 
