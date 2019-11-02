@@ -21,7 +21,7 @@ describe UsersController do
         must_respond_with :success
       end
       
-      it "will redirect for an invalid user" do
+      it "will render 404 for an invalid user" do
         get user_path(-1)
         must_respond_with :not_found
       end
@@ -129,7 +129,7 @@ describe UsersController do
           start_count = User.count
           delete logout_path
           _(User.count).must_equal start_count
-          _(session[:user_id]).must_equal nil
+          assert_nil(session[:user_id])
           _(flash[:success]).wont_be_nil
         end
       end

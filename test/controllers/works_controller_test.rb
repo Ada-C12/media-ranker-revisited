@@ -2,6 +2,7 @@ require "test_helper"
 
 describe WorksController do
   let(:existing_work) { works(:album) }
+  let(:user) { users(:dan) }
 
   describe "root" do
     it "succeeds with all media types" do
@@ -195,15 +196,29 @@ describe WorksController do
     end
 
     it "redirects to the work page after the user has logged out" do
+    # Not sure about the wording of this test -- is it saying that a user should log in, upvote a work, log out, and then be redirected to the works page? Because that sounds more like a users controller test (since it's about what happens after logout) than a works controller test.
+
+    # The test below assumes the test wants to confirm that a logged-in user is redirected to the work page after upvoting.
+    
+      perform_login(user)
+      post upvote_path(existing_work.id)
+      must_respond_with :redirect
+      must_redirect_to work_path
       
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      
+      perform_login(user)
+      post upvote_path(existing_work.id)
+      _(flash[:success]).wont_be_nil
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-
+      perform_login(user)
+      post upvote_path(existing_work.id)
+      post upvote_path(existing_work.id)
+      _(flash[:result_text]).wont_be_nil
+      must_redirect_to work_path
     end
   end
 end
