@@ -1,12 +1,24 @@
 require "test_helper"
 
 describe UsersController do
+  describe "index" do
+    it "will respond with success" do
+      get users_path
+      must_respond_with :success
+    end
+  end
+  
   describe "show" do
     it "will respond with success for a logged in user" do
       user = users(:dan)
       
       get user_path(user.id)
       must_respond_with :success
+    end
+    
+    it "will respond with a 404 error if there is no logged in user" do
+      get user_path(-1)
+      must_respond_with :not_found
     end
   end
   
@@ -15,9 +27,7 @@ describe UsersController do
       start_count = User.count
       
       perform_login
-      
       must_redirect_to root_path
-      
       expect(User.count).must_equal start_count
     end
     
@@ -26,9 +36,7 @@ describe UsersController do
       
       OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(new_user))
       expect{ get auth_callback_path(:github) }.must_change "User.count", 1
-      
-      must_redirect_to root_path
-      
+      must_redirect_to root_path 
     end
     
     it "redirects to the login route if given invalid user data" do
@@ -36,7 +44,6 @@ describe UsersController do
       
       OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(new_user))
       expect{ get auth_callback_path(:github) }.wont_change "User.count"
-      
       must_redirect_to root_path
     end
   end
@@ -48,7 +55,7 @@ describe UsersController do
     
     it "logs out an already logged-in user" do
       expect{ delete logout_path }.wont_change "User.count"
-      expect(session[:user_id]).must_equal nil
+      assert_nil(session[:user_id])
       expect(flash[:success]).must_equal "Successfully logged out!"
       must_redirect_to root_path
     end 
