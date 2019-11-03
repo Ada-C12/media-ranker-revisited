@@ -43,4 +43,28 @@ describe UsersController do
       expect(User.count).must_equal (start_count)
     end
   end
+  
+  describe "LOGOUT" do
+    it "can successfully log out" do
+      perform_login(dan)
+      
+      delete logout_path
+      expect(session[:user_id]).must_equal nil
+      expect(flash[:success]).must_equal "Successfully logged out!"
+      must_redirect_to root_path
+    end
+    
+    it "if non-logged in person try to log out" do
+      get root_path
+      expect(session[:user_id]).must_equal nil
+      
+      delete logout_path
+      expect(flash[:error]).must_equal "How can you log out when you ain't even logged in to begin with?"
+      must_redirect_to root_path
+    end
+  end
+  
+  
+  
+  
 end
