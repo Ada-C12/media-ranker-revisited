@@ -11,6 +11,12 @@ class WorksController < ApplicationController
   end
 
   def index
+    if session[:user_id].nil?
+      flash[:warning] = "You must be logged in to view the all media page."
+      redirect_back(fallback_location: root_path)
+      return
+    end
+
     @works_by_category = Work.to_category_hash
   end
 
@@ -34,6 +40,11 @@ class WorksController < ApplicationController
   end
 
   def show
+    if session[:user_id].nil?
+      flash[:warning] = "You must be logged in to view that page."
+      redirect_back(fallback_location: root_path)
+      return
+    end
     @votes = @work.votes.order(created_at: :desc)
   end
 
@@ -76,8 +87,6 @@ class WorksController < ApplicationController
       flash[:result_text] = "You must log in to do that"
     end
 
-    # Refresh the page to show either the updated vote count
-    # or the error message
     redirect_back fallback_location: work_path(@work)
   end
 
