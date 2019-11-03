@@ -2,6 +2,12 @@
 
 dan:
   username: dan
+  email: dan@danzone.com
+  uid: 1235
+  provider: github
 
 kari:
   username: kari
+  email: kari@kariland.edu
+  uid: 4321
+  provider: github
