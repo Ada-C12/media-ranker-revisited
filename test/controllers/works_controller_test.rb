@@ -1,7 +1,6 @@
 require "test_helper"
 
 describe WorksController do
-  
   let(:existing_work) { works(:album) }
   
   describe "root" do
@@ -35,20 +34,35 @@ describe WorksController do
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
   
   describe "index" do
-    it "succeeds when there are works" do
-      get works_path
-      
-      must_respond_with :success
-    end
-    
-    it "succeeds when there are no works" do
-      Work.all do |work|
-        work.destroy
+    describe "Logged in user" do
+      before do
+        perform_login
       end
       
-      get works_path
+      it "succeeds when there are works" do
+        get works_path
+        
+        must_respond_with :success
+      end
       
-      must_respond_with :success
+      it "succeeds when there are no works" do
+        Work.all do |work|
+          work.destroy
+        end
+        
+        get works_path
+        
+        must_respond_with :success
+      end
+    end
+    
+    describe "Logged out user" do
+      it "redirects to root path when not logged in" do
+        get works_path
+        
+        flash[:failure].must_equal "You must log in to access that page."
+        must_redirect_to root_path
+      end
     end
   end
   
