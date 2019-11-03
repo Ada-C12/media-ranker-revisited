@@ -28,19 +28,34 @@ describe WorksController do
       
       must_respond_with :success
     end
+    
+    it "allows a guest user to view and won't show an error message" do
+      delete logout_path
+      get root_path
+      
+      must_respond_with :success
+      assert_nil(flash[:status])
+      assert_nil(flash[:result_text])
+    end
   end
   
   CATEGORIES = %w(albums books movies)
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
   
   describe "index" do
-    it "succeeds when there are works" do
+    it "succeeds when a user is logged in and there are works" do
+      user = users(:ada)
+      perform_login(user)
+      
       get works_path
       
       must_respond_with :success
     end
     
     it "succeeds when there are no works" do
+      user = users(:ada)
+      perform_login(user)
+      
       Work.all do |work|
         work.destroy
       end
@@ -48,6 +63,13 @@ describe WorksController do
       get works_path
       
       must_respond_with :success
+    end
+    
+    it "redirects to root with an error message if a guest user tries to view the index page" do
+      get works_path
+      must_respond_with :redirect
+      expect(flash[:status]).must_equal :failure
+      expect(flash[:result_text]).must_equal "You must be logged in to see that page"
     end
   end
   
