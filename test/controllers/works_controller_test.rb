@@ -190,6 +190,7 @@ describe WorksController do
   describe "upvote" do
     it "redirects to the work page if no user is logged in" do
       post upvote_path(Work.first.id)
+      #upvotes without being logged in
 
       must_redirect_to work_path(Work.first.id)
       expect(flash[:status]).must_equal :failure
@@ -199,6 +200,7 @@ describe WorksController do
       user = users(:dan)
       perform_login(user)
       delete logout_path
+      #logs in and logs out
 
       post upvote_path(Work.first.id)
       must_redirect_to work_path(Work.first.id)
@@ -208,6 +210,7 @@ describe WorksController do
     it "succeeds for a logged-in user and a fresh user-vote pair" do
       user = users(:kari)
       perform_login(user)
+      #logged in, votes
 
       post upvote_path(Work.first.id)
       expect(flash[:status]).must_equal :success
