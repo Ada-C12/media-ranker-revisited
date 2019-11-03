@@ -97,7 +97,7 @@ class WorksController < ApplicationController
   def authenticate_access
     unless @login_user
       flash[:status] = :failure
-      flash[:result_text] = "You must be logged in to see this page"
+      flash[:result_text] = "You must be logged in to view this page"
       redirect_to root_path
     end
   end
