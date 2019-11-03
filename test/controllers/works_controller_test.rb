@@ -213,7 +213,7 @@ describe WorksController do
       _(flash[:success]).wont_be_nil
     end
 
-    it "redirects to the work page if the user has already voted for that work" do
+    it "flashes a message and redirects to the work page if the user has already voted for that work" do
       perform_login(user)
       post upvote_path(existing_work.id)
       post upvote_path(existing_work.id)
