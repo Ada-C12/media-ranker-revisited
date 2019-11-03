@@ -191,28 +191,57 @@ describe WorksController do
   describe "upvote" do
     it "redirects to the work page if no user is logged in" do
       get root_path
+      before_count = Vote.count
 
       post upvote_path(id: existing_work.id)
+
       expect(flash[:result_text]).must_equal "You must log in to do that"
+      expect(flash[:status]).must_equal :failure
+      expect(Vote.count).must_equal before_count
       must_redirect_to work_path(existing_work)
     end
 
     it "redirects to the work page after the user has logged out" do
       perform_login(kari)
+      delete logout_path
+      expect(session[:user_id]).must_equal nil
+      before_count = Vote.count
 
+      post upvote_path(id: existing_work.id)
+
+      expect(flash[:result_text]).must_equal "You must log in to do that"
+      expect(flash[:status]).must_equal :failure
+      expect(Vote.count).must_equal before_count
+      must_redirect_to work_path(existing_work)
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      kari
+      perform_login(kari)
+      Vote.destroy_all
+      before_count = Vote.count
 
-      #kari casts a vote
+      post upvote_path(id: existing_work.id)
+      expect(flash[:result_text]).must_equal "Successfully upvoted!"
+      expect(flash[:status]).must_equal :success
+      expect(Vote.count).must_equal (before_count + 1)
+      must_redirect_to work_path(existing_work)
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      kari
-      #kari casts a vote
+      perform_login(kari)
+      # we know from fixtures that kari ALREADY voted for existing_work
+      before_count = Vote.count
 
-      #kari casts a vote again
+      # kari casts a vote again
+      post upvote_path(id: existing_work.id)
+      # manually replicate the error msg, b/c scope from works#upvote expired, i think
+      dupe_vote = Vote.create(user_id: kari.id, work_id: existing_work.id)
+      
+      expect(flash[:result_text]).must_equal "Could not upvote"
+      expect(flash[:messages]).must_equal dupe_vote.errors.messages
+      expect(flash[:status]).must_equal :failure
+      expect(Vote.count).must_equal (before_count)
+      must_redirect_to work_path(existing_work)
     end
   end
 end
