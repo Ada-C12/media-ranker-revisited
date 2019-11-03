@@ -1,6 +1,5 @@
 class UsersController < ApplicationController
-  before_action :require_login, only: [:index, :show]
-
+  
   def index
     @users = User.all
   end
@@ -12,7 +11,7 @@ class UsersController < ApplicationController
 
   def create
     auth_hash = request.env["omniauth.auth"]
-    user = User.find_by(uid: auth_hash[:uid], provider: "github")
+    user = User.find_by(uid: auth_hash[:uid], provider: params[:provider])
     
     if user
       flash[:success] = "Logged in as returning user #{user.name}"
@@ -31,18 +30,8 @@ class UsersController < ApplicationController
 
     # If User successfully create save User ID in session
     session[:user_id] = user.id
-    session[:user_username] = user.username
     return redirect_to root_path
   end
-
-  # def current
-  #   @current_user = User.find_by(id: session[:user_id])
-
-  #   unless @current_user
-  #     flash[:error] = "You must be logged in to see this page"
-  #     redirect_to root_path
-  #   end
-  # end 
 
   def destroy
     session[:user_id] = nil

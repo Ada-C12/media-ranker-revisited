@@ -6,32 +6,37 @@ describe WorksController do
   CATEGORIES = %w(albums books movies)
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
 
+  describe "root" do
+    it "succeeds with all media types" do
+      get root_path
+
+      must_respond_with :success
+    end
+
+    it "succeeds with one media type absent" do
+      only_book = works(:poodr)
+      only_book.destroy
+
+      get root_path
+
+      must_respond_with :success
+    end
+
+    it "succeeds with no media" do
+      Work.all do |work|
+        work.destroy
+      end
+
+      get root_path
+
+      must_respond_with :success
+    end
+  end
+
   describe "guest users" do
-    describe "root" do
-      it "succeeds with all media types" do
-        get root_path
-  
-        must_respond_with :success
-      end
-  
-      it "succeeds with one media type absent" do
-        only_book = works(:poodr)
-        only_book.destroy
-  
-        get root_path
-  
-        must_respond_with :success
-      end
-  
-      it "succeeds with no media" do
-        Work.all do |work|
-          work.destroy
-        end
-  
-        get root_path
-  
-        must_respond_with :success
-      end
+    it "can access the homepage" do
+      get root_path
+      must_respond_with :success
     end
 
     it "can't access the works index page" do
@@ -43,26 +48,18 @@ describe WorksController do
       get work_path(existing_work)
       must_redirect_to root_path
     end
-
-    it "can't access the new work form" do
-      get new_work_path
-      must_redirect_to root_path
-    end
-
-    it "can't access the edit work form" do
-      get edit_work_path(existing_work)
-      must_redirect_to root_path
-    end
   end
 
-  describe "index" do
-    it "succeeds when there are works" do
+  describe "logged in users" do
+    it "can access the works index page" do
+      perform_login(users(:dan))
       get works_path
 
       must_respond_with :success
     end
 
-    it "succeeds when there are no works" do
+    it "can access the works page when there are no works" do
+      perform_login(users(:dan))
       Work.all do |work|
         work.destroy
       end
@@ -70,6 +67,22 @@ describe WorksController do
       get works_path
 
       must_respond_with :success
+    end
+
+    it "can access the works show page for an existing work" do
+      perform_login(users(:dan))
+      get work_path(existing_work.id)
+  
+      must_respond_with :success
+    end
+
+    it "can't access the works show page for non-existant work" do
+      destroyed_id = existing_work.id
+      existing_work.destroy
+
+      get work_path(destroyed_id)
+
+      must_respond_with :not_found
     end
   end
 
@@ -114,23 +127,6 @@ describe WorksController do
         Work.find_by(title: "Invalid Work", category: category).must_be_nil
         must_respond_with :bad_request
       end
-    end
-  end
-
-  describe "show" do
-    it "succeeds for an extant work ID" do
-      get work_path(existing_work.id)
-
-      must_respond_with :success
-    end
-
-    it "renders 404 not_found for a bogus work ID" do
-      destroyed_id = existing_work.id
-      existing_work.destroy
-
-      get work_path(destroyed_id)
-
-      must_respond_with :not_found
     end
   end
 
@@ -230,12 +226,17 @@ describe WorksController do
       end
     
       it "redirects to the work page after the user has logged out" do
-        work = works(:album)
-        expect {
-          post "/works/#{work.id}/upvote"
-        }.must_change "Vote.count", 1
+        delete logout_path
 
-        must_redirect_to work_path(work.id)
+        expect(session[:user_id]).must_be_nil
+        must_redirect_to root_path
+  
+        valid_id = existing_work.id
+        expect(valid_id).wont_be_nil
+  
+        expect { post upvote_path(id: valid_id) }.wont_change "Vote.count"
+  
+        must_redirect_to work_path(existing_work)
       end
 
       it "succeeds for a logged-in user and a fresh user-vote pair" do
