@@ -14,12 +14,19 @@ describe UsersController do
       perform_login(dan)
       
       must_redirect_to root_path
-      session[:user_id].must_equal dan.id
+      expect(session[:user_id]).must_equal dan.id
       expect(flash[:success]).must_equal "Logged in as returning user #{dan.name}"
-      User.count.must_equal start_count
+      expect(User.count).must_equal start_count
     end
     
     it "creates an account for a new user and redirects to the root route" do
+      start_count = User.count
+      new_user = User.new( name: "lisa", provider: "github", uid: 333, email: "lisa@simpsons.com" )
+      
+      perform_login(new_user)
+      expect(session[:user_id]).must_equal User.last.id
+      expect(flash[:success]).must_equal "Logged in as new user #{new_user.name}"
+      expect(User.count).must_equal (start_count+1)
     end
     
     it "redirects to the login route if given invalid user data" do
