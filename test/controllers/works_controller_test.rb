@@ -117,13 +117,24 @@ describe "show" do
   
   describe "as a guest user" do
     
-    it "redirects and shows warning message" do
+    it "redirects and shows warning message for legit ID" do
       get work_path(existing_work.id)
       
       must_respond_with :redirect
       _(flash[:warning]).wont_be_nil
       
     end
+
+    it "renders 404 not_found for a bogus work ID" do
+      destroyed_id = existing_work.id
+      existing_work.destroy
+      perform_login(user)
+      
+      get work_path(destroyed_id)
+      
+      must_respond_with :not_found
+    end
+
   end
   
   describe "as a logged-in user" do
