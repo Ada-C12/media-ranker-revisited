@@ -13,3 +13,10 @@ kari:
   provider: "github"
   name: "Kari"
   email: "kari@adadev.org"
+
+jan:
+  username: jan
+  uid: 890
+  provider: "github"
+  name: "Jan"
+  email: "jan@adadev.org"
