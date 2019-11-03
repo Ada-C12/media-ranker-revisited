@@ -14,7 +14,7 @@
       <img src="./assets/0.10.2/loading.gif" alt="loading"/>
     </div>
     <div id="wrapper" style="display:none;">
-      <div class="timestamp">Generated <abbr class="timeago" title="2019-11-03T09:16:37-08:00">2019-11-03T09:16:37-08:00</abbr></div>
+      <div class="timestamp">Generated <abbr class="timeago" title="2019-11-03T09:29:13-08:00">2019-11-03T09:29:13-08:00</abbr></div>
       <ul class="group_tabs"></ul>
 
       <div id="content">
@@ -25,7 +25,7 @@
      covered at
      <span class="covered_strength">
        <span class="green">
-         2.4
+         2.43
        </span>
     </span> hits/line)
   </h2>
@@ -57,7 +57,7 @@
         <td>9</td>
         <td>9</td>
         <td>0</td>
-        <td>6.2</td>
+        <td>6.3</td>
       </tr>
       
       <tr>
@@ -67,7 +67,7 @@
         <td>22</td>
         <td>14</td>
         <td>8</td>
-        <td>2.3</td>
+        <td>2.5</td>
       </tr>
       
       <tr>
@@ -398,8 +398,8 @@
           <code class="ruby">  def find_user</code>
         </li>
       
-        <li class="covered" data-hits="37" data-linenumber="14">
-          <span class="hits">37</span>
+        <li class="covered" data-hits="38" data-linenumber="14">
+          <span class="hits">38</span>
           
           <code class="ruby">    if session[:user_id]</code>
         </li>
@@ -513,8 +513,8 @@
           <code class="ruby">  def create</code>
         </li>
       
-        <li class="covered" data-hits="7" data-linenumber="12">
-          <span class="hits">7</span>
+        <li class="covered" data-hits="8" data-linenumber="12">
+          <span class="hits">8</span>
           
           <code class="ruby">    auth_hash = request.env[&quot;omniauth.auth&quot;]</code>
         </li>
@@ -525,20 +525,20 @@
           <code class="ruby">    </code>
         </li>
       
-        <li class="covered" data-hits="7" data-linenumber="14">
-          <span class="hits">7</span>
+        <li class="covered" data-hits="8" data-linenumber="14">
+          <span class="hits">8</span>
           
           <code class="ruby">    user = User.find_by(uid: auth_hash[:uid], provider: &quot;github&quot;)</code>
         </li>
       
-        <li class="covered" data-hits="7" data-linenumber="15">
-          <span class="hits">7</span>
+        <li class="covered" data-hits="8" data-linenumber="15">
+          <span class="hits">8</span>
           
           <code class="ruby">    if user</code>
         </li>
       
-        <li class="covered" data-hits="7" data-linenumber="16">
-          <span class="hits">7</span>
+        <li class="covered" data-hits="8" data-linenumber="16">
+          <span class="hits">8</span>
           
           <code class="ruby">      flash[:success] = &quot;Logged in as returning user #{user.username}&quot;</code>
         </li>
@@ -609,14 +609,14 @@
           <code class="ruby">    </code>
         </li>
       
-        <li class="covered" data-hits="7" data-linenumber="28">
-          <span class="hits">7</span>
+        <li class="covered" data-hits="8" data-linenumber="28">
+          <span class="hits">8</span>
           
           <code class="ruby">    session[:user_id] = user.id</code>
         </li>
       
-        <li class="covered" data-hits="7" data-linenumber="29">
-          <span class="hits">7</span>
+        <li class="covered" data-hits="8" data-linenumber="29">
+          <span class="hits">8</span>
           
           <code class="ruby">    return redirect_to root_path</code>
         </li>

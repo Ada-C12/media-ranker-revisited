@@ -130,6 +130,16 @@ describe WorksController do
         
         must_respond_with :not_found
       end
+      
+      it "succeeds for any work of any category" do
+        CATEGORIES.each do |category|
+          item = Work.where(category: category).first
+          if item != nil
+            get work_path(item.id)
+            must_respond_with :success
+          end
+        end
+      end
     end
     
     describe "Logged out user" do
