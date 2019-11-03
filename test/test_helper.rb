@@ -41,4 +41,13 @@ class ActiveSupport::TestCase
     name: user.name,
     }}
   end
+  
+  def perform_login(user = User.first)
+    # takes a user & fakes a github info hash, signs in as that user
+    OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
+    get auth_callback_path(:github)
+    
+    return user
+  end
+  
 end
