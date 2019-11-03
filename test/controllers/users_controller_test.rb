@@ -5,25 +5,16 @@ describe UsersController do
     it "can successfully login a user" do
       user = User.first
       
-      user_info = {
-        user:
-        {
-          username: user.username
-        }
-      }
-      post login_path, params: user_info
+      perform_login(user)
       
-      expect(session[:user_id]).must_equal user.id
-      
-      get current_user_path
-      
-      must_respond_with :success
+      must_redirect_to root_path
+      session[:user_id].must_equal  user.id
     end
     
     it "creates an account when logging in a new user" do
       user = User.new
       
-      expect{ post login_path, params: user_info }.must_differ "User.count", 1
+      expect{ post github_login_path, params: user_info }.must_differ "User.count", 1
       
       expect(session[:user_id]).must_equal user.id
       
@@ -33,7 +24,7 @@ describe UsersController do
     it "does not create a new account when logging in an existing user" do
       user = User.first
       
-      expect{post login_path, params: user_info }.must_differ "User.count", 0
+      expect{post github_login_path, params: user_info }.must_differ "User.count", 0
       
       must_respond_with :success
     end
@@ -41,7 +32,7 @@ describe UsersController do
     it "will not login a user without the proper credentials" do
       user = nil
       
-      expect{ post login_path, params: user_info}.must_differ "User.count", 0
+      expect{ post github_login_path, params: user_info}.must_differ "User.count", 0
       
       expect(session[:user_id]).must_equal nil
     end
