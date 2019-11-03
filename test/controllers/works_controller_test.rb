@@ -3,35 +3,57 @@ require "test_helper"
 describe WorksController do
   let(:existing_work) { works(:album) }
 
-  describe "root" do
-    it "succeeds with all media types" do
-      get root_path
-
-      must_respond_with :success
-    end
-
-    it "succeeds with one media type absent" do
-      only_book = works(:poodr)
-      only_book.destroy
-
-      get root_path
-
-      must_respond_with :success
-    end
-
-    it "succeeds with no media" do
-      Work.all do |work|
-        work.destroy
-      end
-
-      get root_path
-
-      must_respond_with :success
-    end
-  end
-
   CATEGORIES = %w(albums books movies)
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
+
+  describe "guest users" do
+    describe "root" do
+      it "succeeds with all media types" do
+        get root_path
+  
+        must_respond_with :success
+      end
+  
+      it "succeeds with one media type absent" do
+        only_book = works(:poodr)
+        only_book.destroy
+  
+        get root_path
+  
+        must_respond_with :success
+      end
+  
+      it "succeeds with no media" do
+        Work.all do |work|
+          work.destroy
+        end
+  
+        get root_path
+  
+        must_respond_with :success
+      end
+    end
+
+    it "can't access the works index page" do
+      get works_path
+      must_redirect_to root_path
+    end
+
+    it "can't see an individual work" do
+      get work_path(existing_work)
+      must_redirect_to root_path
+    end
+
+    it "can't access the new work form" do
+      get new_work_path
+      must_redirect_to root_path
+    end
+
+    it "can't access the edit work form" do
+      get edit_work_path(existing_work)
+      must_redirect_to root_path
+    end
+  end
 
   describe "index" do
     it "succeeds when there are works" do
