@@ -5,10 +5,10 @@ Rails.application.routes.draw do
   # post "/login", to: "users#login"
   post "/logout", to: "users#logout", as: "logout"
   get "/auth/github", as: "github_login"
-  get "/auth/:provider/callback", to: "users#create"
-
+  get "/auth/:provider/callback", to: "users#create", as: "auth_callback"
+  
   resources :works
   post "/works/:id/upvote", to: "works#upvote", as: "upvote"
-
+  
   resources :users, only: [:index, :show]
 end
