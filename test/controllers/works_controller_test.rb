@@ -2,6 +2,7 @@ require "test_helper"
 
 describe WorksController do
   let(:existing_work) { works(:album) }
+  let(:kari) { users(:kari) }
 
   describe "root" do
     it "succeeds with all media types" do
@@ -189,19 +190,29 @@ describe WorksController do
 
   describe "upvote" do
     it "redirects to the work page if no user is logged in" do
-      skip
+      get root_path
+
+      post upvote_path(id: existing_work.id)
+      expect(flash[:result_text]).must_equal "You must log in to do that"
+      must_redirect_to work_path(existing_work)
     end
 
     it "redirects to the work page after the user has logged out" do
-      skip
+      perform_login(kari)
+
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      skip
+      kari
+
+      #kari casts a vote
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      skip
+      kari
+      #kari casts a vote
+
+      #kari casts a vote again
     end
   end
 end
