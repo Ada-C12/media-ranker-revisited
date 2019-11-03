@@ -2,6 +2,7 @@ class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
   before_action :category_from_work, except: [:root, :index, :new, :create]
+  before_action :check_user, only: [:index, :show]
   
   def root
     @albums = Work.best_albums
@@ -11,13 +12,6 @@ class WorksController < ApplicationController
   end
   
   def index
-    if !@login_user
-      flash[:status] = :failure
-      flash[:result_text] = "You must be logged in to see that page"
-      redirect_to :root
-      return
-    end
-    
     @works_by_category = Work.to_category_hash
   end
   
@@ -92,6 +86,15 @@ class WorksController < ApplicationController
   
   def media_params
     params.require(:work).permit(:title, :category, :creator, :description, :publication_year)
+  end
+  
+  def check_user
+    if !@login_user
+      flash[:status] = :failure
+      flash[:result_text] = "You must be logged in to see that page"
+      redirect_to :root
+      return
+    end
   end
   
   def category_from_work

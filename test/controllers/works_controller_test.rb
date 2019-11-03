@@ -29,11 +29,9 @@ describe WorksController do
       must_respond_with :success
     end
     
-    it "allows a guest user to view and won't show an error message" do
+    it "doesn't show any error messages if nobody is logged in" do      
       delete logout_path
-      get root_path
       
-      must_respond_with :success
       assert_nil(flash[:status])
       assert_nil(flash[:result_text])
     end
@@ -42,7 +40,7 @@ describe WorksController do
   CATEGORIES = %w(albums books movies)
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
   
-  describe "index" do
+  describe "index for authenticated users" do
     it "succeeds when a user is logged in and there are works" do
       user = users(:ada)
       perform_login(user)
@@ -52,7 +50,7 @@ describe WorksController do
       must_respond_with :success
     end
     
-    it "succeeds when there are no works" do
+    it "succeeds when a user is logged in and there are no works" do
       user = users(:ada)
       perform_login(user)
       
@@ -64,10 +62,14 @@ describe WorksController do
       
       must_respond_with :success
     end
-    
+  end
+  
+  describe "index for guest users" do
     it "redirects to root with an error message if a guest user tries to view the index page" do
       get works_path
+      
       must_respond_with :redirect
+      must_redirect_to :root
       expect(flash[:status]).must_equal :failure
       expect(flash[:result_text]).must_equal "You must be logged in to see that page"
     end
@@ -117,20 +119,37 @@ describe WorksController do
     end
   end
   
-  describe "show" do
+  describe "show for authenticated users" do
     it "succeeds for an extant work ID" do
+      user = users(:ada)
+      perform_login(user)
+      
       get work_path(existing_work.id)
       
       must_respond_with :success
     end
     
     it "renders 404 not_found for a bogus work ID" do
+      user = users(:ada)
+      perform_login(user)
+      
       destroyed_id = existing_work.id
       existing_work.destroy
       
       get work_path(destroyed_id)
       
       must_respond_with :not_found
+    end
+  end
+  
+  describe "show for guest users" do
+    it "redirects to the main page with an error message" do
+      get work_path(existing_work.id)
+      
+      expect(flash[:status]).must_equal :failure
+      expect(flash[:result_text]).must_equal "You must be logged in to see that page"
+      must_respond_with :redirect
+      must_redirect_to :root
     end
   end
   
@@ -209,7 +228,7 @@ describe WorksController do
     end
   end
   
-  describe "upvote" do
+  describe "upvote for guest user" do
     it "redirects to the work page if no user is logged in" do
       post upvote_path(existing_work.id)
       
@@ -230,7 +249,9 @@ describe WorksController do
       expect (flash[:result_text]).must_equal "You must log in to do that"
       must_redirect_to work_path(existing_work.id)
     end
-    
+  end
+  
+  describe "upvote for authenticated user" do
     it "succeeds for a logged-in user and a fresh user-vote pair" do
       user = users(:ada)
       
