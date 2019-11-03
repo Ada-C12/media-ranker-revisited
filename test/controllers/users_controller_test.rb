@@ -2,6 +2,23 @@ require "test_helper"
 
 describe UsersController do
 let(:dan) { users(:dan) }
+  describe 'auth_callback' do
+      it "should log in an existing user" do
+      # count how many users we have to start with
+
+      start_count = User.count
+
+      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(dan))
+
+      get auth_callback_path(:github)
+
+      must_redirect_to root_path
+      session[:user_id].must_equal dan.id
+    end
+  end
+
+
+
   describe 'not-authenticated' do
 
     describe 'index' do 
@@ -44,9 +61,4 @@ let(:dan) { users(:dan) }
       end
     end
   end
-
-
-  
-    
-
 end
