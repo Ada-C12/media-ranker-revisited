@@ -7,8 +7,7 @@ describe UsersController do
       
       perform_login(user)
       
-      must_redirect_to root_path
-      session[:user_id].must_equal  user.id
+      expect(session[:user_id]).must_equal user.id
     end
     
     it "creates an account when logging in a new user" do

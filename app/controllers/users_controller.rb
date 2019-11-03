@@ -16,15 +16,12 @@ class UsersController < ApplicationController
     if user      
       flash[:status] = :success
       flash[:result_text] = "Logged in as returning user #{user.name}"
-      binding.pry
-      raise
     else
       user = User.build_from_github(auth_hash)
       if user.save
         flash[:status] = :success
         flash[:result_text] = "Logged in as new user #{user.name}"
-        binding.pry
-      else
+        else
         flash[:status] = :failure
         flash[:result_text] = "Could not create new user account: #{user.errors.messages}"
       end
