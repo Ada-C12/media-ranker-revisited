@@ -45,6 +45,8 @@ class ActiveSupport::TestCase
     get auth_callback_path(:github)
     
     must_redirect_to root_path
+    p user.id
+    p user
     session[:user_id].must_equal user.id
     
     return user

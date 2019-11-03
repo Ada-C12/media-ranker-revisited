@@ -11,27 +11,28 @@ describe UsersController do
     end
     
     it "creates an account when logging in a new user" do
-      user = User.new
+      user_count = User.all.length
+      user = User.create(provider: "github", uid: "123", email: "email", name: "name", username: "username")
       
-      expect{ post github_login_path, params: user_info }.must_differ "User.count", 1
+      perform_login(user)
       
-      expect(session[:user_id]).must_equal user.id
-      
-      must_respond_with :success
+      expect(session[:user_id]).must_equal user.id      
+      User.count.must_equal user_count + 1
     end
     
     it "does not create a new account when logging in an existing user" do
       user = User.first
+      user_count = User.all.length
       
-      expect{post github_login_path, params: user_info }.must_differ "User.count", 0
+      perform_login(user)
       
-      must_respond_with :success
+      User.count.must_equal user_count      
     end
     
     it "will not login a user without the proper credentials" do
-      user = nil
+      user = User.create(provider: "facebook", uid: "0", email: "email", name: "name", username: "username")
       
-      expect{ post github_login_path, params: user_info}.must_differ "User.count", 0
+      perform_login(user)
       
       expect(session[:user_id]).must_equal nil
     end
@@ -43,7 +44,7 @@ describe UsersController do
       
       expect(session[:user_id]).must_equal nil
       
-      must_respond_with :success
+      must_respond_with :redirect
     end    
   end
 end
