@@ -22,18 +22,31 @@ let(:dan) { users(:dan) }
       it 'should redirect with an invalid user' do
         get user_path(-1)
 
-        must_respond_with 404
+        must_respond_with :not_found
+      end
+    end
+
+    describe 'create' do
+      it "should create a user with valid data" do
+        #mock the callback hash from github
+      end
+
+      it "should do x when there is invalid data" do
+      end
+    end
+  
+    describe 'destroy' do
+      it "should set session[:user_id] to nil upon logout" do
+        count = User.all.count
+        delete logout_path(dan)
+
+        expect(session[:user_id]).must_be_nil
       end
     end
   end
 
 
-  describe 'authenticated' do
-    describe 'create' do
-    end
-
-    describe 'destroy' do
-    end
+  
     
-  end
+
 end
