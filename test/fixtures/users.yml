@@ -13,3 +13,10 @@ israel:
   provider: github
   name: israel
   email: isra@gmail.com
+
+dan:
+  username: dan
+  uid: 45669
+  provider: github
+  name: danr
+  email: dan@gmail.com
