@@ -1,6 +1,10 @@
 require "test_helper"
 
 describe WorksController do
+  before do
+    perform_login(users(:dan))
+  end
+
   let(:existing_work) { works(:album) }
 
   describe "root" do
@@ -35,6 +39,8 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      perform_login(users(:dan))
+      
       get works_path
 
       must_respond_with :success
@@ -188,20 +194,70 @@ describe WorksController do
   end
 
   describe "upvote" do
-    it "redirects to the work page if no user is logged in" do
-      skip
+    before do
+      delete logout_path
     end
 
-    it "redirects to the work page after the user has logged out" do
-      skip
+    it "redirects to the root page if no user logged in" do
+      perform_login(User.new)
+      expect(session[:user_id]).must_be_nil
+
+      expect {
+        post upvote_path(existing_work.id)
+      }.wont_change "Vote.count"
+      
+      assert_equal "You must be logged in to do that.", flash[:result_text]
+      must_redirect_to root_path
+    end
+
+    it "redirects to the root page after the user has logged out" do
+      user = users(:kari)
+      perform_login(user)
+      expect(session[:user_id]).wont_be_nil
+      delete logout_path
+      expect(session[:user_id]).must_be_nil
+
+      expect {
+        post upvote_path(existing_work.id)
+      }.wont_change "Vote.count"
+
+      assert_equal "You must be logged in to do that.", flash[:result_text]
+      must_redirect_to root_path
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      skip
+      work = works(:another_album)
+      user = users(:kari)
+      perform_login(user)
+      expect(session[:user_id]).wont_be_nil
+
+      vote = Vote.find_by(work_id: work.id, user_id: user.id)
+      expect(vote).must_be_nil
+
+      expect {
+        post upvote_path(work.id)
+      }.must_change "Vote.count", 1
+
+      assert_equal :success, flash[:status]
+      assert_equal "Successfully upvoted!", flash[:result_text]
+      must_redirect_to work_path(work.id)
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      skip
+      user = users(:dan)
+      perform_login(user)
+      expect(session[:user_id]).wont_be_nil
+      
+      vote = Vote.find_by(work_id: existing_work.id, user_id: user.id)
+      expect(vote).wont_be_nil
+
+      expect {
+        post upvote_path(existing_work.id)
+      }.wont_change "Vote.count"
+
+      assert_equal :failure, flash[:status]
+      must_redirect_to work_path(existing_work.id)
     end
   end
+
 end
