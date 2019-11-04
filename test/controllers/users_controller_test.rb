@@ -43,7 +43,7 @@ describe UsersController do
   end
 
   describe "destroy" do
-    it "logs out a logged in user" do
+    it "logs out a logged in user and does not change the number of users" do
       start_count = User.count
       user = users(:ada)
       
@@ -55,6 +55,14 @@ describe UsersController do
       
       must_redirect_to root_path
       assert_nil (session[:merchant_id])
+      expect(User.count).must_equal start_count
+    end
+
+    it "redirects to the root path and flashes an error message for a logged out user" do
+      delete logout_path
+      must_redirect_to root_path
+      flash[:status].must_equal :failure
+      flash[:result_text].must_equal "You must be logged in to view this section"
     end
   end
 end
