@@ -1,4 +1,6 @@
 class UsersController < ApplicationController
+  before_action :determine_login, except: [:login]
+
   def index
     @users = User.all
   end
