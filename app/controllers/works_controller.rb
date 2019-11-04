@@ -2,6 +2,7 @@ class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
   before_action :category_from_work, except: [:root, :index, :new, :create]
+  before_action :find_user
   
   def root
     @albums = Work.best_albums
@@ -11,7 +12,15 @@ class WorksController < ApplicationController
   end
   
   def index
-    @works_by_category = Work.to_category_hash
+    # WAVE 3
+    # can only show if logged in user exists
+    if @login_user
+      @works_by_category = Work.to_category_hash
+    else
+      flash[:status] = :danger
+      flash[:result_text] = "You are not authorized to access this page"
+      redirect_to root_path
+    end
   end
   
   def new
@@ -19,6 +28,8 @@ class WorksController < ApplicationController
   end
   
   def create
+    # WAVE 4
+    # can only access if logged in user exists
     @work = Work.new(media_params)
     @media_category = @work.category
     if @work.save
@@ -34,13 +45,25 @@ class WorksController < ApplicationController
   end
   
   def show
-    @votes = @work.votes.order(created_at: :desc)
+    if @login_user
+      # WAVE 3
+      # can only show if logged in user exists
+      @votes = @work.votes.order(created_at: :desc)
+    else
+      flash[:status] = :danger
+      flash[:result_text] = "You are not authorized to access this page"
+      redirect_to root_path
+    end
   end
   
   def edit
+    # WAVE 4
+    # can only access if logged in user exists
   end
   
   def update
+    # WAVE 4
+    # can only access if logged in user exists
     @work.update_attributes(media_params)
     if @work.save
       flash[:status] = :success
@@ -62,12 +85,6 @@ class WorksController < ApplicationController
   end
   
   def upvote
-    # hacky user creation for work upvote tests
-    # :find_user method wasn't finding the user in tests
-    # no clue why
-    if params[:test_user_id]
-      @login_user = User.find_by(id: params[:test_user_id])
-    end
     flash[:status] = :failure
     if @login_user
       vote = Vote.new(user: @login_user, work: @work)
@@ -88,6 +105,19 @@ class WorksController < ApplicationController
   end
   
   private
+  
+  def find_user 
+    if session[:user_id]
+      @login_user = User.find_by(id: session[:user_id])
+    end
+    
+    # hacky user creation for work upvote tests
+    # :find_user method wasn't finding the user in tests
+    # no clue why
+    if params[:test_user_id]
+      @login_user = User.find_by(id: params[:test_user_id])
+    end
+  end
   
   def media_params
     params.require(:work).permit(:title, :category, :creator, :description, :publication_year)
