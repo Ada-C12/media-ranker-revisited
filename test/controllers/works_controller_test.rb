@@ -189,19 +189,45 @@ describe WorksController do
 
   describe "upvote" do
     it "redirects to the work page if no user is logged in" do
-      skip
+      work = works(:movie)
+
+      expect {
+        post upvote_path(work.id)
+      }.wont_change "Vote.count"
+      must_respond_with :redirect
+      must_redirect_to work_path(work)
     end
 
     it "redirects to the work page after the user has logged out" do
-      skip
+      perform_login(users(:kari))
+      delete logout_path
+      must_respond_with :redirect
+      must_redirect_to root_path
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      skip
+      work = works(:movie)
+      perform_login(users(:kari))
+
+      expect {
+        post upvote_path(work.id)
+      }.must_change "Vote.count", 1
+
+      must_respond_with :redirect
+      must_redirect_to work_path(work)
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      skip
+      work = works(:movie)
+      perform_login(users(:kari))
+      post upvote_path(work.id)
+
+      expect {
+        post upvote_path(work.id)
+      }.wont_change "Vote.count"
+
+      must_respond_with :redirect
+      must_redirect_to work_path(work)
     end
   end
 end
