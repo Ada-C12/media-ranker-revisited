@@ -193,7 +193,6 @@ describe WorksController do
 
       must_redirect_to work_path(existing_work.id)
       assert_equal "You must log in to do that", flash[:result_text]
-
     end
 
     it "redirects to the work page after the user has logged out" do
@@ -213,7 +212,6 @@ describe WorksController do
 
       must_redirect_to work_path(existing_work.id)
       assert_equal "You must log in to do that", flash[:result_text]
-
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
@@ -253,5 +251,21 @@ describe WorksController do
       
       assert_equal "Could not upvote", flash[:result_text]
     end
+
+    it "will not upvote a nonexistent work" do 
+      bogus_id = existing_work.id
+      existing_work.destroy 
+
+      user = User.create(
+        uid: 233,
+        email: "dude@cool.com",
+        provider: "github",
+        username: "dude"
+        )
+      perform_login(user)
+      
+      post upvote_path(bogus_id)
+      must_respond_with :not_found
+    end 
   end
 end
