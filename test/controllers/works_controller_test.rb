@@ -189,19 +189,69 @@ describe WorksController do
 
   describe "upvote" do
     it "redirects to the work page if no user is logged in" do
-      skip
+      post upvote_path(existing_work.id)
+
+      must_redirect_to work_path(existing_work.id)
+      assert_equal "You must log in to do that", flash[:result_text]
+
     end
 
     it "redirects to the work page after the user has logged out" do
-      skip
+      user = User.create(
+        uid: 233,
+        email: "dude@cool.com",
+        provider: "github",
+        username: "dude"
+        )
+      perform_login(user)
+      
+      delete logout_path
+      
+      expect {
+        post upvote_path(existing_work.id)
+      }.wont_change "Vote.count"
+
+      must_redirect_to work_path(existing_work.id)
+      assert_equal "You must log in to do that", flash[:result_text]
+
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      skip
+      user = User.create(
+        uid: 233,
+        email: "dude@cool.com",
+        provider: "github",
+        username: "dude"
+        )
+      perform_login(user)
+      
+      expect {
+        post upvote_path(existing_work.id)
+      }.must_change "Vote.count", 1
+      
+      must_redirect_to work_path(existing_work.id)
+      
+      assert_equal "Successfully upvoted!", flash[:result_text]
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      skip
+      user = User.create(
+        uid: 233,
+        email: "dude@cool.com",
+        provider: "github",
+        username: "dude"
+        )
+      perform_login(user)
+      
+      post upvote_path(existing_work.id)
+
+      expect {
+        post upvote_path(existing_work.id)
+      }.wont_change "Vote.count"
+      
+      must_redirect_to work_path(existing_work.id)
+      
+      assert_equal "Could not upvote", flash[:result_text]
     end
   end
 end
