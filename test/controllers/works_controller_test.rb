@@ -196,7 +196,13 @@ describe WorksController do
     end
 
     it "redirects to the work page after the user has logged out" do
-      skip
+      user = users(:georgina)
+
+      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
+
+      get auth_callback_path(:github)
+      delete logout_path
+      must_redirect_to root_path
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
