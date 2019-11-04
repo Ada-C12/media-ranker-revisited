@@ -10,35 +10,35 @@ describe WorksController do
       before do
         perform_login(kari)
       end
-
+      
       it "succeeds with all media types" do
         get root_path
-  
+        
         must_respond_with :success
       end
-  
+      
       it "succeeds with one media type absent" do
         only_book = works(:poodr)
         only_book.destroy
-  
+        
         get root_path
-  
+        
         must_respond_with :success
       end
-  
+      
       it "succeeds with no media" do
         Work.all do |work|
           work.destroy
         end
-  
+        
         get root_path
-  
+        
         must_respond_with :success
       end
       
     end
     
-    describe "Guest users" do
+    describe "Guests" do
       it "succeeds with all media types" do
         get root_path
         
@@ -72,28 +72,69 @@ describe WorksController do
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
   
   describe "index" do
-    it "succeeds when there are works" do
-      get works_path
-      
-      must_respond_with :success
-    end
-    
-    it "succeeds when there are no works" do
-      Work.all do |work|
-        work.destroy
+    describe "Logged in users" do
+      before do
+        perform_login(kari)
       end
       
-      get works_path
+      it "succeeds when there are works" do
+        get works_path
+        
+        must_respond_with :success
+      end
       
-      must_respond_with :success
+      it "succeeds when there are no works" do
+        Work.all do |work|
+          work.destroy
+        end
+        
+        get works_path
+        
+        must_respond_with :success
+      end
+    end
+    
+    describe "Guests" do
+      it "redirects when there are works" do
+        get works_path
+        
+        must_respond_with :redirect
+        expect(flash[:status]).must_equal :failure
+        expect(flash[:result_text]).must_equal "You must be logged in to view this section"
+      end
+      
+      it "redirects when there are no works" do
+        Work.all do |work|
+          work.destroy
+        end
+        
+        get works_path
+        
+        must_respond_with :redirect
+        expect(flash[:status]).must_equal :failure
+        expect(flash[:result_text]).must_equal "You must be logged in to view this section"
+      end
     end
   end
   
   describe "new" do
-    it "succeeds" do
-      get new_work_path
-      
-      must_respond_with :success
+    describe "Logged in users" do
+      it "succeeds" do
+        perform_login(kari)
+        get new_work_path
+        
+        must_respond_with :success
+      end
+    end
+    
+    describe "Guets" do
+      it "redirects" do
+        get new_work_path
+        
+        must_respond_with :redirect
+        expect(flash[:status]).must_equal :failure
+        expect(flash[:result_text]).must_equal "You must be logged in to view this section"
+      end
     end
   end
   
