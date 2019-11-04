@@ -59,12 +59,50 @@ describe UsersController do
       expect(session[:user_id]).must_equal nil
       
       delete logout_path
-      expect(flash[:error]).must_equal "How can you log out when you ain't even logged in to begin with?"
+      
+      expect(flash[:status]).must_equal :failure
+      expect(flash[:result_text]).must_equal "You must be logged in to view this section"
       must_redirect_to root_path
     end
   end
   
+  describe "INDEX" do
+    describe "Logged in users" do
+      it "can see index page" do
+        perform_login(dan)
+        
+        get users_path
+        must_respond_with :success
+      end
+    end
+    
+    describe "Guests" do
+      it "can't see index page" do
+        get users_path
+        
+        must_redirect_to root_path
+        expect(flash[:status]).must_equal :failure
+        expect(flash[:result_text]).must_equal "You must be logged in to view this section"
+      end
+    end
+  end
   
-  
-  
+  describe "SHOW" do
+    it "Logged in user can access show page" do
+      perform_login(dan)
+      
+      get user_path(id: dan.id)
+      must_respond_with :success
+    end
+    
+    it "Guests can't access show page" do
+      get root_path
+      dan
+      get user_path(id: dan.id)
+      
+      must_redirect_to root_path
+      expect(flash[:status]).must_equal :failure
+      expect(flash[:result_text]).must_equal "You must be logged in to view this section"
+    end
+  end
 end
