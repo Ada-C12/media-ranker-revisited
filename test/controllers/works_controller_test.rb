@@ -254,7 +254,7 @@ describe WorksController do
       end
 
       it "renders bad_request for bogus data" do
-        updates = { work: { title: nil } }
+        updates = { work: { title: nil, category: '' } }
 
         expect {
           put work_path(existing_work), params: updates

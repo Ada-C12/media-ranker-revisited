@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+  has_many :votes, dependent: :nullify
   has_many :works, dependent: :nullify
   has_many :ranked_works, through: :votes, source: :work
 
