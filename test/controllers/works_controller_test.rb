@@ -197,6 +197,27 @@ describe WorksController do
 
       must_respond_with :not_found
     end
+
+    it "can only update a work created by the logged user" do
+      perform_login(users(:georgina))
+      work = works(:album)
+      
+      put work_path(work.id), params: { work: { title: "Test Title" } }
+
+      work = Work.find_by(id: work.id)
+
+      expect(work.title).must_equal "Test Title"
+    end
+
+    it "can not update a work created by other user" do
+      perform_login(users(:georgina))
+      work = works(:another_album)
+      
+      put work_path(work.id)
+      
+      expect(flash[:result_text]).must_include "You can only update the media created by yourself."
+      must_redirect_to work_path(work.id)
+    end
   end
 
   describe "destroy" do

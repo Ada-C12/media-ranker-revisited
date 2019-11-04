@@ -60,7 +60,7 @@ class WorksController < ApplicationController
         if @work.save
           flash[:status] = :success
           flash[:result_text] = "Successfully updated #{@media_category.singularize} #{@work.id}"
-          redirect_to work_path(@work)
+          redirect_to work_path(@work.id)
         else
           flash.now[:status] = :failure
           flash.now[:result_text] = "Could not update #{@media_category.singularize}"
@@ -69,7 +69,7 @@ class WorksController < ApplicationController
         end
       else
         flash[:result_text] = "You can only update the media created by yourself."
-        redirect_to work_path(@work)
+        redirect_to work_path(@work.id)
       end
     end
 
