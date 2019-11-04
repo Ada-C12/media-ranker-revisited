@@ -2,7 +2,8 @@ require "test_helper"
 
 describe UsersController do
 let(:dan) { users(:dan) }
-  describe 'auth_callback' do
+
+  describe 'authenticated' do
       it "should log in an existing user" do
       start_count = User.count
 
@@ -17,22 +18,47 @@ let(:dan) { users(:dan) }
 
     it "should create a new user" do
       start_count = User.count
-      natalie = User.new(provider: "github", uid: 1234567, email: "nt@adadev.org", name: "natalie", username: "natalietapias")
+      natalie = User.new(provider: "github", uid: 12345678, email: "nt@adadev.org", name: "natalie", username: "natalietapias")
 
       OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(natalie))
       
       get auth_callback_path(:github)
 
       must_redirect_to root_path 
-      expect(User.find_by(name: "natalie").uid).must_equal natalie.uid
-      # expect(start_count).must_equal (User.count - 1)
+      expect(User.count).must_equal (start_count + 1)
     end
 
-    it "should redirect to root_path if passed invalid auth_hash" do
+    it "should flash error and redirect to root path if invalid user info provided" do
+      start_count = User.count
+      ted = User.new(provider: "github", name: "ted")
+      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(ted))
+      get auth_callback_path(:github)
+
       
+      must_redirect_to root_path
+      expect(flash[:error]).wont_be_nil
+      expect(flash[:user_id]).must_be_nil
+      expect(start_count).must_equal User.count
+    end
+
+    describe "logout" do
+      it "should successfully log out a user" do
+        # log in 
+        OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(dan))
+
+        get auth_callback_path(:github)
+        must_redirect_to root_path
+        session[:user_id].must_equal dan.id
+
+        # log out
+        delete logout_path
+        expect(session[:user_id]).must_be_nil
+        expect(flash[:success]).wont_be_nil
+        must_redirect_to root_path
+
+      end
     end
   end
-
 
 
   describe 'not-authenticated' do
@@ -56,24 +82,6 @@ let(:dan) { users(:dan) }
         get user_path(-1)
 
         must_respond_with :not_found
-      end
-    end
-
-    describe 'create' do
-      it "should create a user with valid data" do
-        #mock the callback hash from github
-      end
-
-      it "should do x when there is invalid data" do
-      end
-    end
-  
-    describe 'destroy' do
-      it "should set session[:user_id] to nil upon logout" do
-        count = User.all.count
-        delete logout_path(dan)
-
-        expect(session[:user_id]).must_be_nil
       end
     end
   end
