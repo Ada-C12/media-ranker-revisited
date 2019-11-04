@@ -34,20 +34,39 @@ describe WorksController do
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
   
   describe "index" do
-    it "succeeds when there are works" do
-      get works_path
+    it "displays the main page for a guest user" do      
+      get root_path
       
       must_respond_with :success
     end
     
-    it "succeeds when there are no works" do
-      Work.all do |work|
-        work.destroy
-      end
-      
+    it "returns an error/redirects to main page if a guest user tries to access the works index page" do
       get works_path
       
-      must_respond_with :success
+      must_respond_with :redirect
+      must_redirect_to root_path
+    end
+    
+    describe "logged-in user" do
+      before do
+        @user = User.first
+        perform_login(@user)
+      end
+      it "succeeds when there are works" do
+        get works_path, params: {test_user_id: @user.id}
+        
+        must_respond_with :success
+      end
+      
+      it "succeeds when there are no works" do
+        Work.all do |work|
+          work.destroy
+        end
+        
+        get works_path, params: {test_user_id: @user.id}
+        
+        must_respond_with :success
+      end
     end
   end
   
@@ -96,19 +115,33 @@ describe WorksController do
   end
   
   describe "show" do
-    it "succeeds for an extant work ID" do
+    it "returns an error/redirects to main page if a guest user tries to access a work show page" do
       get work_path(existing_work.id)
       
-      must_respond_with :success
+      must_respond_with :redirect
+      must_redirect_to root_path
     end
     
-    it "renders 404 not_found for a bogus work ID" do
-      destroyed_id = existing_work.id
-      existing_work.destroy
+    describe "logged-in user" do
+      before do
+        @user = User.first
+        perform_login(@user)
+      end
       
-      get work_path(destroyed_id)
+      it "succeeds for an extant work ID" do
+        get work_path(existing_work.id), params: {test_user_id: @user.id}
+        
+        must_respond_with :success
+      end
       
-      must_respond_with :not_found
+      it "renders 404 not_found for a bogus work ID" do
+        destroyed_id = existing_work.id
+        existing_work.destroy
+        
+        get work_path(destroyed_id), params: {test_user_id: @user.id}
+        
+        must_respond_with :not_found
+      end
     end
   end
   
@@ -256,27 +289,7 @@ describe WorksController do
   end
   
   describe "wave 3 tests (to be folded into appropriate test blocks)" do
-    it "displays the main page for a guest user" do      
-      get root_path
-
-      must_respond_with :success
-    end
     
-    it "returns an error/redirects to main page if a guest user tries to access the works index page" do
-      get works_path
-      
-      must_respond_with :redirect
-      must_redirect_to root_path
-    end
-    
-    it "returns an error/redirects to main page if a guest user tries to access a work show page" do
-      work = Work.first
-      
-      get work_path(work.id)
-      
-      must_respond_with :redirect
-      must_redirect_to root_path
-    end
     
     it "allows a logged-in user to access the works index page" do
       user = User.first

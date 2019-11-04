@@ -14,7 +14,13 @@ class WorksController < ApplicationController
   def index
     # WAVE 3
     # can only show if logged in user exists
-    @works_by_category = Work.to_category_hash
+    if @login_user
+      @works_by_category = Work.to_category_hash
+    else
+      flash[:status] = :danger
+      flash[:result_text] = "You are not authorized to access this page"
+      redirect_to root_path
+    end
   end
   
   def new
@@ -40,10 +46,14 @@ class WorksController < ApplicationController
   
   def show
     if @login_user
-    # WAVE 3
-    # can only show if logged in user exists
-    @votes = @work.votes.order(created_at: :desc)
+      # WAVE 3
+      # can only show if logged in user exists
+      @votes = @work.votes.order(created_at: :desc)
     else
+      flash[:status] = :danger
+      flash[:result_text] = "You are not authorized to access this page"
+      redirect_to root_path
+    end
   end
   
   def edit
