@@ -16,6 +16,7 @@ class UsersController < ApplicationController
       flash[:status] = :success
       flash[:result_text] = "Successfully logged in as existing user #{user.username}"
     else
+      return redirect_to root_path unless auth_hash[:uid]
       user = User.build_from_github(auth_hash)
       if user.save
         flash[:status] = :success
@@ -27,7 +28,7 @@ class UsersController < ApplicationController
         # render "login_form", status: :bad_request
       end
     end
-    session[:user_id] = user.id
+    session[:user_id] = user&.id
     return redirect_to root_path
   end
 
