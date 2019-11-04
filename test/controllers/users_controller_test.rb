@@ -14,6 +14,22 @@ let(:dan) { users(:dan) }
 
       must_redirect_to root_path
       session[:user_id].must_equal dan.id
+      expect(start_count).must_equal User.count
+    end
+
+    it "should create a new user" do
+      start_count = User.count
+      user = User.new(provider: "github", uid: 1234567, email: "nt@adadev.org", name: "natalie")
+
+      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(user)
+      
+      must_redirect_to root_path 
+      session[:user_id].must_equal user.uid
+      expect(start_count).must_equal (User.count - 1)
+    end
+
+    it "should redirect to root_path if passed invalid auth_hash" do
+      
     end
   end
 

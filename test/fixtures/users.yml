@@ -2,11 +2,11 @@
 
 dan:
   provider: github
-  username: dan
+  name: dan
   email: dan@adadevacad.org
   uid: 12344
 kari:
   provider: github
-  username: kari
+  name: kari
   email: kari@adadevacad.org
   uid: 12345
