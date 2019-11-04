@@ -30,6 +30,7 @@ class WorksController < ApplicationController
   def create
     # WAVE 4
     # can only access if logged in user exists
+    # logged in user becomes Creator
     @work = Work.new(media_params)
     @media_category = @work.category
     if @work.save
@@ -64,6 +65,7 @@ class WorksController < ApplicationController
   def update
     # WAVE 4
     # can only access if logged in user exists
+    # can only access if logged in user is the Creator.
     @work.update_attributes(media_params)
     if @work.save
       flash[:status] = :success
@@ -78,6 +80,9 @@ class WorksController < ApplicationController
   end
   
   def destroy
+    # WAVE 4
+    # can only access if logged in user exists
+    # can only access if logged in user is the Creator.
     @work.destroy
     flash[:status] = :success
     flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
@@ -105,19 +110,6 @@ class WorksController < ApplicationController
   end
   
   private
-  
-  def find_user 
-    if session[:user_id]
-      @login_user = User.find_by(id: session[:user_id])
-    end
-    
-    # hacky user auth for work upvote tests
-    # :find_user method wasn't finding the user in tests
-    # no clue why
-    if params[:test_user_id]
-      @login_user = User.find_by(id: params[:test_user_id])
-    end
-  end
   
   def media_params
     params.require(:work).permit(:title, :category, :creator, :description, :publication_year)
