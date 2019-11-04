@@ -35,12 +35,14 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      perform_login(users(:georgina))
       get works_path
 
       must_respond_with :success
     end
 
     it "succeeds when there are no works" do
+      perform_login(users(:georgina))
       Work.all do |work|
         work.destroy
       end
@@ -48,6 +50,20 @@ describe WorksController do
       get works_path
 
       must_respond_with :success
+    end
+
+    it "can be seen only by logged in users" do
+      perform_login(users(:georgina))
+      get works_path
+
+      must_respond_with :success
+    end
+
+    it "can not be seen by guest users" do
+      get works_path
+
+      must_redirect_to root_path
+      expect(flash[:result_text]).must_include "You need to login to see all the media."
     end
   end
 
@@ -97,6 +113,7 @@ describe WorksController do
 
   describe "show" do
     it "succeeds for an extant work ID" do
+      perform_login(users(:georgina))
       get work_path(existing_work.id)
 
       must_respond_with :success
@@ -109,6 +126,20 @@ describe WorksController do
       get work_path(destroyed_id)
 
       must_respond_with :not_found
+    end
+
+    it "can be seen only by logged in users" do
+      perform_login(users(:israel))
+      get work_path(existing_work.id)
+
+      must_respond_with :success
+    end
+
+    it "can not be seen by guest users" do
+      get work_path(existing_work.id)
+
+      must_redirect_to root_path
+      expect(flash[:result_text]).must_include "You need to login to see this content."
     end
   end
 
