@@ -1,6 +1,8 @@
 class Vote < ApplicationRecord
   belongs_to :user
-  belongs_to :work, counter_cache: :vote_count
-
-  validates :user, uniqueness: {scope: :work, message: "has already voted for this work"}
+  belongs_to :work
+  validates :user_id, presence: true;
+  validates :work_id, presence: true;
+  #check ActiveRecord composite unique across two fields
+  
 end

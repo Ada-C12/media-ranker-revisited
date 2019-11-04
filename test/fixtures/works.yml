@@ -1,26 +1,24 @@
-# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-album:
-  title: Old Title
-  creator: You Create
-  description: This is an older album
-  publication_year: 1955-11-01
+pill:
   category: album
-
-another_album:
-  title: New Title
-  creator: Who Creates
-  description: This is a newer album
-  publication_year: 2016-04-08
+  title: Jagged Little Pill
+  creator: Alanis Morisette
+  publication_year: 1995
+  description: Jagged Little Pill is the third studio album, and international debut, by Canadian singer Alanis Morissette, released on June 13, 1995, through Maverick. It was her first album to be released worldwide as her first two albums were released only in Canada.
+peppers:
   category: album
-
-poodr:
-  title: Practical Object Oriented Design in Ruby
-  creator: Sandi Metz
-  description: programming!
-  publication_year: 2012
-  category: book
-
-movie:
-  title: test movie - has only required fields
+  title: Greatest Hits
+  creator: Red Hot Chili Peppers
+  publication_year: 2003
+  description: Greatest Hits is the second compilation album by the Red Hot Chili Peppers. It was released on November 18, 2003 by Warner Bros. Records. Aside from their cover of "Higher Ground", all songs on the compilation are from their tenure on Warner Bros. Records from 1991 to 2002, in addition to two newly recorded songs.
+dresses:
   category: movie
+  title: 27 Dresses
+  creator: Anne Fletcher
+  publication_year: 2008
+  description: Perennial bridesmaid Jane (Katherine Heigl) always puts the needs of others before her own, making her the go-to gal whenever someone needs help with wedding plans. So when Jane's younger sister Tess (Malin Akerman) snags the man (Edward Burns) Jane secretly loves, Jane finds herself questioning her role as a wedding junkie for the first time in her life. Meanwhile, a handsome reporter (James Marsden) sees Jane's unusual story as his ticket off the bridal beat.
+kondo:
+  category: book
+  title: The Life-Changing Magic of Tidying Up
+  creator: Marie Kondo
+  publication_year: 2014
+  description: With detailed guidance for determining which items in your house “spark joy” (and which don’t), this international bestseller featuring Tokyo’s newest lifestyle phenomenon will help you clear your clutter and enjoy the unique magic of a tidy home—and the calm, motivated mindset it can inspire.

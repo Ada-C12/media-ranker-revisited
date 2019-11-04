@@ -1,0 +1,25 @@
+<h1 >Votes</h1>
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">Vote ID</th>
+      <th scope="col">Category</th>
+      <th scope="col">Title</th>
+      <th scope="col">Creator</th>
+      <th scope="col">User Name</th>
+      <th scope="col">Vote Date</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% @votes.each do |vote| %>
+    <tr> 
+      <td><%= vote.id %></td>
+      <td><%= (vote.work.category).capitalize %></td>
+      <td><%= link_to vote.work.title, work_path(vote.work) %></td>
+      <td><%= link_to vote.work.creator, work_path(vote.work) %></td>
+      <td><%= link_to vote.user.name, user_path(vote.user) %></td>
+      <td><%= vote.date %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

@@ -2,8 +2,8 @@
  * This is a manifest file that'll be compiled into application.css, which will include all the files
  * listed below.
  *
- * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
- * or any plugin's vendor/assets/stylesheets directory can be referenced here using a relative path.
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, or any plugin's
+ * vendor/assets/stylesheets directory can be referenced here using a relative path.
  *
  * You're free to add application-wide styles to this file and they'll appear at the bottom of the
  * compiled file so the styles you add here take precedence over styles defined in any other CSS/SCSS
@@ -12,164 +12,95 @@
  *
  */
 
+    /* Custom bootstrap variables must be set or imported *before* bootstrap. */
 @import "bootstrap";
-@import "users";
-@import "works";
+    /* Import scss content */
+@import "**/*";
 
-$primary-font: 'Gudea', sans-serif;
-$primary-teal: #26A69A;
-$dark-teal: #00796B;
-$secondary-color: #B2DFDB;
-$light-gray: #EEEEEE;
-$dark-gray: #424242;
-$gold: #FF5722;
-
-$default-border: 2px solid;
-
-body, h1, h2, h3, h4, h5 {
-  font-family: $primary-font
+*{
+    font-family: 'Rubik', sans-serif;
 }
-
-h1, h2, h3, h4, h5 {
-  font-weight: bold;
+.header_image {
+    background-color: #293462;
 }
-
-a, h2, h3 {
-  color: $primary-teal;
+header {
+    padding: 3%;
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: end;
 }
+    header > h1 {
+        text-align: right;
+        color: #ec9b3b;
+        grid-column: 1;
+        padding-right: 20px;
 
-a:hover {
-  color: $dark-teal;
-  text-decoration: none;
-}
 
-// BOOTSTRAP OVERRIDES
-
-.alert {
-  margin: 0;
-}
-
-.btn-primary {
-  background-color: $primary-teal;
-  color: white;
-  border-color: $primary-teal;
-}
-
-.btn:hover {
-  background-color: $dark-teal;
-  color: white;
-}
-
-.table td {
-  vertical-align: middle;
-}
-
-// ---
-
-.app-header__nav {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-
-.app-header__nav_item {
-  margin-top: 1rem;
-}
-
-.app-header__nav_item .nav-link {
-  color: $dark-teal;
-}
-
-.app-header__site-nav-container .app-header__nav_item {
-  margin-right: 2rem;
-}
-
-.app-header__user-nav-container .nav-item {
-  margin-left: 2rem;
-}
-
-.list-group-item {
-  border: none;
-}
-
-.app-header__header {
-  max-width: 100%;
-  background-color: $secondary-color;
-  margin-bottom: 0.5rem;
-  padding: 2rem 1rem 0.5rem 1rem;
-  h1 {
-    text-align: center;
-    margin: 25px auto 40px auto;
+    }
+    h2 {
+        padding-left: 20px;
+        border-left: 3px solid #00818a;
+        text-align: left;
+        color: #f7be16;
+        grid-column: 2;
+        
+    }
     a {
-      color: $gold;
-      padding-right: 25px;
-      margin-right: 15px;
-      border-right: white 2px solid;
+        font-size: 1.15em;
+        color: #00818a;
+        text-decoration: none;
+        padding: 15px;
+        padding-left: 20px;
+        padding-right: 20px;
     }
-    small {
-      color: white;
+    a:hover {
+       color: #ec9b3b; 
+       text-decoration: none;
+       text-emphasis: strong;
     }
-  }
-  p {
-    margin-bottom: 5px;
-  }
+    .btn-primary {
+        border: 1px solid #00818a;
+        background-color: #00818a;
+    }
+
+    .btn-primary:hover {
+        background-color:#ec9b3b;
+        border: 1px solid #ec9b3b;
+    }
+
+    .spotlight{
+        color: #f7be16;
+        font-size: 1.15em;
+        text-emphasis: strong;
+        background-color:#00818a;
+        border: 1px solid #00818a;
+    }
+h1 {
+    text-align: left;
+    color: #ec9b3b;
+    grid-column: 1;
+    padding-left: 20px;
+    padding-top: 20px;
 }
 
-.alert__container {
-  margin: 2rem 0 1rem 0;
+h5{
+    background-color: #ec9b3b;
+    text-align: center;
+    border-radius: 45px;
+    color: white;
+    padding-left: 20px;
+    padding-right: 20px; 
 }
 
-.spotlight {
-  padding: 0 2rem 2rem 2rem;
+.loginout {
+    text-align: right;
+
+    display: grid;
+    grid-template-columns: 1.5fr 4fr 1fr;
+    align-items: end;
 }
 
-.spotlight__header {
-  color: $primary-teal;
-}
 
-.spotlight__header--prefix {
-  color: $dark-gray;
-}
 
-.spotlight__header--prefix::after {
-  content: ":"
-}
 
-.spotlight__link-to {
-  border-bottom: $default-border;
-}
 
-.spotlight__description {
-  margin-bottom: 0;
-}
-
-.root__hr {
-  margin: 0px auto 3rem auto;
-  color: $light-gray;
-}
-
-.top-ten__container {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-column-gap: 2em;
-}
-
-.top-ten__header {
-  color: $primary-teal;
-  border-bottom: $default-border;
-  border-bottom-color: $secondary-color;
-}
-
-.top-ten__list {
-  list-style-type: none;
-  margin-left: 0;
-  padding-left: 0;
-}
-
-.top-ten__creator {
-  color: slategrey;
-}
-
-main {
-  padding: 2rem;
-}

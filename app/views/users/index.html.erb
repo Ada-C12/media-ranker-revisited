@@ -1,21 +1,25 @@
-<h2>List of Users</h2>
-<table class="table">
+<h1 >Users</h1>
+<table class="table table-hover">
   <thead>
     <tr>
-      <th>Username</th>
-      <th>Votes</th>
-      <th>Joined</th>
+      <th scope="col">User ID</th>
+      <th scope="col">Name</th>
+      <th scope="col">Member Since</th>
+      <th scope="col">Upvote Count</th>
+      <th scope="col">Edit</th>
+      <th scope="col">Delete</th>
     </tr>
   </thead>
   <tbody>
-    <% @users.each do |user| %>
-      <tr>
-        <td><%= link_to user.username, user_path(user) %></td>
-        <td><%= user.votes.count %></td>
-        <td><%= render_date user.created_at %></td>
-      </tr>
-    <% end %>
+  <% @users.each do |user| %>
+    <tr> 
+      <td><%= link_to user.id, user_path(user) %></td>
+      <td><%= link_to user.name, user_path(user) %></td>
+      <td><%= readable_date(user.join_date) %></td>
+      <td><%= user.total_votes(user.id) %></td>
+      <td><%= link_to "Edit", edit_user_path(user.id) %></td>
+      <td><%= link_to "Delete", user_path(user.id), method: :delete, data: {confirm: "Are you sure?"}%></td>
+    </tr>
+  <% end %>
   </tbody>
 </table>
-
-<%= link_to "Back to Media List", root_path, class: "btn btn-secondary" %>

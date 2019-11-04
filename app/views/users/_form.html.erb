@@ -1,0 +1,6 @@
+<%= form_with model: @user, class: 'create-work' do |f| %>>
+  <%= f.label :name %>
+  <%= f.text_field :name %>
+
+  <%= f.submit "Save" %>
+<% end %>

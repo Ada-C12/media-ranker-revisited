@@ -1,0 +1,54 @@
+<br />
+<section id="top_work">
+<div class="card text-center">
+  <div class="card-header spotlight">
+    SPOTLIGHT
+  </div>
+  <div class="card-body">
+    <% top_ranker = Work.spotlight%>
+    <h4 class="card-title"><%= top_ranker.title %></h4>
+    <p class="card-text"><%= top_ranker.description %></p>
+    <%= link_to '<button type="button" class="btn btn-primary">View Details</button>'.html_safe, work_path(top_ranker) %>
+  </div>
+</div>
+</section>
+<br />
+<section class="top_ten">
+<div class="card-deck">
+
+  <div class="card" style="width: 18rem;">
+    <div class="card-header" >
+      Top Albums
+    </div>
+    <% top_albums = Work.top_ten("album")%>
+    <ul class="list-group list-group-flush">
+    <% top_albums.each do |album| %>
+      <li class="list-group-item"><%= link_to album.title, work_path(album) %></li>
+      <% end %>
+    </ul>
+  </div>
+
+  <div class="card" style="width: 18rem;">
+    <div class="card-header">
+      Top Books
+    </div>
+    <% top_books = Work.top_ten("book")%>
+    <ul class="list-group list-group-flush">
+      <% top_books.each do |book| %>
+      <li class="list-group-item"><%= link_to book.title, work_path(book) %></li>
+      <% end %>
+      </ul>
+  </div>
+
+  <div class="card" style="width: 18rem;">
+    <div class="card-header">
+      Top Movies
+    </div>
+    <% top_movies = Work.top_ten("movie")%>
+    <ul class="list-group list-group-flush">
+      <% top_movies.each do |movie| %>
+      <li class="list-group-item"><%= link_to movie.title, work_path(movie) %></li>
+      <% end %>
+      </ul>
+  </div>
+</div>
