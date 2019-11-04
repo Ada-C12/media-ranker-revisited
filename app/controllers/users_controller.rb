@@ -56,7 +56,7 @@ class UsersController < ApplicationController
       
       if user.save
         flash[:status] = :success
-        flash[:result_text] = "Logged in as new user #{user.name}"
+        flash[:result_text] = "Logged in as new user #{user.nickname}"
       else
         # Couldn't save the user for some reason. If we
         # hit this it probably means there's a bug with the
