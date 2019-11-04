@@ -39,4 +39,24 @@ describe User do
       user2.errors.messages.must_include :username
     end
   end
+
+  describe "build from github" do
+    it "can build an auth_hash from github" do
+      auth_hash = { 
+        uid: 12300,
+        info: {
+          email: "random@email.com",
+          name: "random"
+        }
+      }
+      
+      new_user = User.build_from_github(auth_hash)
+      
+      expect(new_user).must_be_kind_of User
+      
+      expect(new_user.uid).must_equal auth_hash[:uid]
+      expect(new_user.email).must_equal auth_hash[:info][:email]
+      expect(new_user.username).must_equal auth_hash[:info][:name]
+    end
+  end
 end

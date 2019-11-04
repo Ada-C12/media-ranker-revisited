@@ -3,10 +3,9 @@ Rails.application.routes.draw do
   root "works#root"
 
   get "/auth/github", as: "github_login"
+  get "/auth/github/callback", to: "users#create", as: "auth_callback"
 
-  get "/auth/:provider/callback", to: "users#create"
-
-  delete "/logout", to: "users#destroy", as: "logout"
+  post "/logout", to: "users#destroy", as: "logout"
 
   resources :works
   post "/works/:id/upvote", to: "works#upvote", as: "upvote"
