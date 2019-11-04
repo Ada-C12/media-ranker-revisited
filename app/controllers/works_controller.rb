@@ -111,7 +111,7 @@ class WorksController < ApplicationController
       @login_user = User.find_by(id: session[:user_id])
     end
     
-    # hacky user creation for work upvote tests
+    # hacky user auth for work upvote tests
     # :find_user method wasn't finding the user in tests
     # no clue why
     if params[:test_user_id]
