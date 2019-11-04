@@ -34,20 +34,34 @@ describe WorksController do
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
 
   describe "index" do
-    it "succeeds when there are works" do
-      get works_path
+    describe "logged-in user" do 
+      before do 
+        perform_login
+      end
+      it "succeeds when there are works" do
+        get works_path
 
-      must_respond_with :success
-    end
-
-    it "succeeds when there are no works" do
-      Work.all do |work|
-        work.destroy
+        must_respond_with :success
       end
 
-      get works_path
+      it "succeeds when there are no works" do
+        Work.all do |work|
+          work.destroy
+        end
 
-      must_respond_with :success
+        get works_path
+
+        must_respond_with :success
+      end
+    end
+
+    describe "guest user" do
+      it "redirects to the root path and displays a message for users that are not logged in" do
+        get works_path
+
+        must_redirect_to root_path
+        assert_equal "You must log in to do that", flash[:result_text]
+      end
     end
   end
 
@@ -96,19 +110,34 @@ describe WorksController do
   end
 
   describe "show" do
-    it "succeeds for an extant work ID" do
-      get work_path(existing_work.id)
+    describe "logged-in user" do
+      before do
+        perform_login
+      end
 
-      must_respond_with :success
+      it "succeeds for an extant work ID" do
+        get work_path(existing_work.id)
+
+        must_respond_with :success
+      end
+
+      it "renders 404 not_found for a bogus work ID" do
+        destroyed_id = existing_work.id
+        existing_work.destroy
+
+        get work_path(destroyed_id)
+
+        must_respond_with :not_found
+      end
     end
 
-    it "renders 404 not_found for a bogus work ID" do
-      destroyed_id = existing_work.id
-      existing_work.destroy
-
-      get work_path(destroyed_id)
-
-      must_respond_with :not_found
+    describe "guest user" do 
+      it "redirects to the root path and displays a message for users that are not logged-in" do
+        get work_path(existing_work.id)
+        
+        must_redirect_to root_path
+        assert_equal "You must log in to do that", flash[:result_text]
+      end
     end
   end
 

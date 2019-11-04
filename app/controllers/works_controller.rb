@@ -21,14 +21,7 @@ class WorksController < ApplicationController
   end
 
   def new
-    #UPDATE!! All users should be able to create a new work
-    if @login_user
-      @work = Work.new
-    else
-      flash[:status] = :failure
-      flash[:result_text] = "You must log in to do that"
-      redirect_to root_path
-    end
+    @work = Work.new
   end
 
   def create
