@@ -103,7 +103,7 @@ describe WorksController do
 
   describe "authenticated user" do
     before do
-      perform_login
+      perform_login(users(:dan))
     end
 
     describe "index" do
@@ -142,6 +142,7 @@ describe WorksController do
   
         new_work_id = Work.find_by(title: "Dirty Computer").id
   
+        expect(Work.find(new_work_id).user).must_equal users(:dan)
         must_respond_with :redirect
         must_redirect_to work_path(new_work_id)
       end
@@ -186,10 +187,16 @@ describe WorksController do
     end
   
     describe "edit" do
-      it "succeeds for an extant work ID" do
-        get edit_work_path(existing_work.id)
+      it "succeeds for an extant work ID that the user created" do
+        new_work = Work.create(title: "harry potter", creator: "rowling", category: "book", user: users(:dan))
+
+        get edit_work_path(new_work.id)
   
         must_respond_with :success
+      end
+
+      it "does not succeed for an existing work ID that the user did not create" do
+
       end
   
       it "renders 404 not_found for a bogus work ID" do

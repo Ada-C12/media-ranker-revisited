@@ -36,7 +36,9 @@ class WorksController < ApplicationController
 
   def create
     @work = Work.new(media_params)
+    @work.user_id = User.find(session[:user_id]).id
     @media_category = @work.category
+
     if @work.save
       flash[:status] = :success
       flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
@@ -65,7 +67,15 @@ class WorksController < ApplicationController
     @user = User.find_by(id: session[:user_id])
 
     if @user.nil?
-    flash[:result_text] = "You must log in to do that"
+      flash[:result_text] = "You must log in to do that"
+
+      redirect_to root_path
+      return
+    end
+
+    if @user.id != @work.user_id
+      flash[:result_text] = "You are not authorized to perform this action
+      "
       redirect_to root_path
       return
     end
@@ -93,7 +103,7 @@ class WorksController < ApplicationController
       redirect_to root_path
       return
     end
-    
+
     @work.destroy
     flash[:status] = :success
     flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
@@ -128,6 +138,7 @@ class WorksController < ApplicationController
 
   def category_from_work
     @work = Work.find_by(id: params[:id])
+
     render_404 unless @work
     @media_category = @work.category.downcase.pluralize
   end
