@@ -4,38 +4,55 @@ describe WorksController do
   let(:existing_work) { works(:album) }
   let(:dan) { users(:dan) }
 
-  describe "root" do
-    it "succeeds with all media types" do
-      get root_path
+  describe "guest user" do
+    describe "root" do
+      it "succeeds with all media types" do
+        get root_path
 
-      must_respond_with :success
-    end
-
-    it "succeeds with one media type absent" do
-      only_book = works(:poodr)
-      only_book.destroy
-
-      get root_path
-
-      must_respond_with :success
-    end
-
-    it "succeeds with no media" do
-      Work.all do |work|
-        work.destroy
+        must_respond_with :success
       end
 
-      get root_path
+      it "succeeds with one media type absent" do
+        only_book = works(:poodr)
+        only_book.destroy
+  
+        get root_path
+  
+        must_respond_with :success
+      end
 
-      must_respond_with :success
+      it "succeeds with no media" do
+        Work.all do |work|
+          work.destroy
+        end
+  
+        get root_path
+  
+        must_respond_with :success
+      end
     end
-  end
+    
 
+    describe "index" do
+      it "redirects to root_path with guest user" do
+        get works_path
+
+        must_redirect_to root_path
+      end
+
+    
+  end
+end
+
+describe "authenticated" do
+  
   CATEGORIES = %w(albums books movies)
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
 
   describe "index" do
+
     it "succeeds when there are works" do
+      perform_login(users(:dan))
       get works_path
 
       must_respond_with :success
@@ -51,7 +68,8 @@ describe WorksController do
       must_respond_with :success
     end
   end
-
+end
+  
   describe "new" do
     it "succeeds" do
       get new_work_path
