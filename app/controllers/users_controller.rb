@@ -21,7 +21,7 @@ class UsersController < ApplicationController
       if user.save
         flash[:status] = :success
         flash[:result_text] = "Logged in as new user #{user.name}"
-        else
+      else
         flash[:status] = :failure
         flash[:result_text] = "Could not create new user account: #{user.errors.messages}"
       end
