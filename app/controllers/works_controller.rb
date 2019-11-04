@@ -21,6 +21,7 @@ class WorksController < ApplicationController
   end
 
   def new
+    #UPDATE!! All users should be able to create a new work
     if @login_user
       @work = Work.new
     else

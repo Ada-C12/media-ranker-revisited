@@ -31,7 +31,7 @@ class UsersController < ApplicationController
       else
         flash[:status] = :failure
         flash[:result_text] = "Could not create new user account:"
-        flash[:messages] = @user.errors.messages
+        flash[:messages] = user.errors.messages
         return redirect_to root_path
       end
     end
