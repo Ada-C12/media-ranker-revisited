@@ -24,31 +24,39 @@ class WorksController < ApplicationController
   end
   
   def new
-    @work = Work.new
+    if @login_user
+      @work = Work.new
+    else
+      flash[:status] = :danger
+      flash[:result_text] = "You must be logged in to do that"
+      return redirect_to root_path
+    end
   end
   
   def create
-    # WAVE 4
-    # can only access if logged in user exists
-    # logged in user becomes Creator
-    @work = Work.new(media_params)
-    @media_category = @work.category
-    if @work.save
-      flash[:status] = :success
-      flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
-      redirect_to work_path(@work)
+    if @login_user
+      @work = Work.new(media_params)
+      @work.user_id = @login_user.id
+      @media_category = @work.category
+      if @work.save
+        flash[:status] = :success
+        flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
+        redirect_to work_path(@work)
+      else
+        flash[:status] = :failure
+        flash[:result_text] = "Could not create #{@media_category.singularize}"
+        flash[:messages] = @work.errors.messages
+        render :new, status: :bad_request
+      end
     else
-      flash[:status] = :failure
-      flash[:result_text] = "Could not create #{@media_category.singularize}"
-      flash[:messages] = @work.errors.messages
-      render :new, status: :bad_request
+      flash[:status] = :danger
+      flash[:result_text] = "You must be logged in to do that"
+      return redirect_to root_path
     end
   end
   
   def show
     if @login_user
-      # WAVE 3
-      # can only show if logged in user exists
       @votes = @work.votes.order(created_at: :desc)
     else
       flash[:status] = :danger
@@ -58,35 +66,62 @@ class WorksController < ApplicationController
   end
   
   def edit
-    # WAVE 4
-    # can only access if logged in user exists
+    if @login_user
+      if @work.user_id != @login_user.id
+        flash[:status] = :danger
+        flash[:result_text] = "You are not authorized to do that"
+        return redirect_to work_path(@work)
+      end
+    else
+      flash[:status] = :danger
+      flash[:result_text] = "You are not authorized to do that"
+      return redirect_to root_path
+    end
   end
   
   def update
-    # WAVE 4
-    # can only access if logged in user exists
-    # can only access if logged in user is the Creator.
-    @work.update_attributes(media_params)
-    if @work.save
-      flash[:status] = :success
-      flash[:result_text] = "Successfully updated #{@media_category.singularize} #{@work.id}"
-      redirect_to work_path(@work)
+    if @login_user
+      if @work.user_id == @login_user.id
+        @work.update_attributes(media_params)
+        if @work.save
+          flash[:status] = :success
+          flash[:result_text] = "Successfully updated #{@media_category.singularize} #{@work.id}"
+          redirect_to work_path(@work)
+        else
+          flash.now[:status] = :failure
+          flash.now[:result_text] = "Could not update #{@media_category.singularize}"
+          flash.now[:messages] = @work.errors.messages
+          render :edit, status: :not_found
+        end
+      else
+        flash[:status] = :danger
+        flash[:result_text] = "You are not authorized to do that"
+        redirect_to work_path(@work)
+      end
     else
-      flash.now[:status] = :failure
-      flash.now[:result_text] = "Could not update #{@media_category.singularize}"
-      flash.now[:messages] = @work.errors.messages
-      render :edit, status: :not_found
+      flash[:status] = :danger
+      flash[:result_text] = "You are not authorized to do that"
+      return redirect_to root_path
     end
   end
   
   def destroy
-    # WAVE 4
-    # can only access if logged in user exists
-    # can only access if logged in user is the Creator.
-    @work.destroy
-    flash[:status] = :success
-    flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
-    redirect_to root_path
+    if @login_user
+      if @work.user_id == @login_user.id
+        @work.destroy
+        flash[:status] = :success
+        flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
+        redirect_to root_path
+      else
+        flash[:status] = :danger
+        flash[:result_text] = "You are not authorized to do that"
+        redirect_to work_path(@work)
+      end
+    else
+      flash[:status] = :danger
+      flash[:result_text] = "You are not authorized to do that"
+      return redirect_to root_path
+    end
   end
   
   def upvote
