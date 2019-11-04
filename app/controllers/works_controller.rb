@@ -67,8 +67,8 @@ class WorksController < ApplicationController
 
   def destroy
     if login_user?
-      name = @work.creator 
-      user = User.find_by(name: name)
+      user_id = @work.user_id
+      user = User.find_by(id: user_id)
       if user && user.id == session[id: user_id]
         @work.destroy
         flash[:status] = :success
