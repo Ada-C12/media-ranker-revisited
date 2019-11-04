@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   get "/auth/github", as: "github_login"
   get "/auth/github/callback", to: "users#create", as: "auth_callback"
 
-  post "/logout", to: "users#destroy", as: "logout"
+  delete "/logout", to: "users#destroy", as: "logout"
 
   resources :works
   post "/works/:id/upvote", to: "works#upvote", as: "upvote"

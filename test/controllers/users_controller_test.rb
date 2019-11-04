@@ -43,7 +43,7 @@ describe UsersController do
       it "successfully logs out current user" do
         expect(session[:user_id].nil?).must_equal false
         
-        post logout_path
+        delete logout_path
         
         assert_nil(session[:user_id])
         expect(flash[:success]).must_equal "Successfully logged out!"
