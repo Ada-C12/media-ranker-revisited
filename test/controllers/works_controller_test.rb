@@ -34,20 +34,44 @@ describe WorksController do
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
   
   describe "index" do
-    it "succeeds when there are works" do
-      get works_path
-      
-      must_respond_with :success
-    end
-    
-    it "succeeds when there are no works" do
-      Work.all do |work|
-        work.destroy
+    describe "guest user" do
+      it "redirects to main page when there are works" do
+        get works_path
+        
+        must_redirect_to root_path
       end
       
-      get works_path
+      it "redirects to main page when there are no works" do
+        Work.all do |work|
+          work.destroy
+        end
+        
+        get works_path
+        
+        must_redirect_to root_path
+      end
+    end
+    
+    describe "logged in user" do
+      before do
+        perform_login(users(:dan))
+      end
       
-      must_respond_with :success
+      it "succeeds when there are works" do
+        get works_path
+        
+        must_respond_with :success
+      end
+      
+      it "succeeds when there are no works" do
+        Work.all do |work|
+          work.destroy
+        end
+        
+        get works_path
+        
+        must_respond_with :success
+      end
     end
   end
   
@@ -96,19 +120,42 @@ describe WorksController do
   end
   
   describe "show" do
-    it "succeeds for an extant work ID" do
-      get work_path(existing_work.id)
+    describe "guest user" do
+      it "succeeds for an extant work ID" do
+        get work_path(existing_work.id)
+        
+        must_redirect_to root_path
+      end
       
-      must_respond_with :success
+      it "renders 404 not_found for a bogus work ID" do
+        destroyed_id = existing_work.id
+        existing_work.destroy
+        
+        get work_path(destroyed_id)
+        
+        must_respond_with :not_found
+      end
     end
-    
-    it "renders 404 not_found for a bogus work ID" do
-      destroyed_id = existing_work.id
-      existing_work.destroy
+
+    describe "logged in user" do
+      before do 
+        perform_login(users(:dan))
+      end
+
+      it "succeeds for an extant work ID" do
+        get work_path(existing_work.id)
+        
+        must_respond_with :success
+      end
       
-      get work_path(destroyed_id)
-      
-      must_respond_with :not_found
+      it "renders 404 not_found for a bogus work ID" do
+        destroyed_id = existing_work.id
+        existing_work.destroy
+        
+        get work_path(destroyed_id)
+        
+        must_respond_with :not_found
+      end
     end
   end
   
