@@ -12,8 +12,6 @@ class WorksController < ApplicationController
   end
   
   def index
-    # WAVE 3
-    # can only show if logged in user exists
     if @login_user
       @works_by_category = Work.to_category_hash
     else
