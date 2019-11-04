@@ -10,6 +10,17 @@
   </div>
 <% end %>
 
+<%= form_tag do %>
+  <div class="form-group">
+    <%= label_tag :name, "name" %>
+    <%= text_field_tag :name, nil, class: "form-control" %>
+  </div>
+  <div class="form-group">
+    <%= submit_tag "Log In", class: "btn btn-primary" %>
+  </div>
+<% end %>
+
+
 <article>
   <h4>A note about logging in</h4>
   <p>
