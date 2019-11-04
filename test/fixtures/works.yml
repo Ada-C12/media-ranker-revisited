@@ -21,3 +21,9 @@ poodr:
 movie:
   title: test movie - has only required fields
   category: movie
+becoming:
+  title: becoming
+  creator: Michelle Obama
+  description: inspiring book
+  category: book
+  user: kari

@@ -196,7 +196,13 @@ describe WorksController do
       end
 
       it "does not succeed for an existing work ID that the user did not create" do
+        another_users_work = works(:becoming)
 
+        get edit_work_path(another_users_work.id)
+  
+        expect(flash[:result_text]).must_equal "You are not authorized to perform this action"
+        must_respond_with :redirect
+        must_redirect_to root_path
       end
   
       it "renders 404 not_found for a bogus work ID" do
@@ -246,11 +252,26 @@ describe WorksController do
     end
   
     describe "destroy" do
-      it "succeeds for an extant work ID" do
+      it "succeeds for an extant work ID that the user created" do
+        new_work = Work.create(title: "harry potter", creator: "rowling", category: "book", user: users(:dan))
+
         expect {
-          delete work_path(existing_work.id)
+          delete work_path(new_work.id)
         }.must_change "Work.count", -1
   
+        must_respond_with :redirect
+        must_redirect_to root_path
+      end
+
+      it "does not succeed for an existing work ID that the user did not create" do
+        another_users_work = works(:becoming)
+
+        expect {
+          get edit_work_path(another_users_work.id)
+        }.wont_change "Work.count"
+  
+        expect(flash[:result_text]).must_equal "You are not authorized to perform this action"
+
         must_respond_with :redirect
         must_redirect_to root_path
       end

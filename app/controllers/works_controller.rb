@@ -74,8 +74,7 @@ class WorksController < ApplicationController
     end
 
     if @user.id != @work.user_id
-      flash[:result_text] = "You are not authorized to perform this action
-      "
+      flash[:result_text] = "You are not authorized to perform this action"
       redirect_to root_path
       return
     end
@@ -100,6 +99,12 @@ class WorksController < ApplicationController
 
     if @user.nil?
     flash[:result_text] = "You must log in to do that"
+      redirect_to root_path
+      return
+    end
+
+    if @user.id != @work.user_id
+      flash[:result_text] = "You are not authorized to perform this action"
       redirect_to root_path
       return
     end
