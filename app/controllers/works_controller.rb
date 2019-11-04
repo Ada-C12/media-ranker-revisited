@@ -14,7 +14,7 @@ class WorksController < ApplicationController
     if login_user?
       @works_by_category = Work.to_category_hash
     else
-      flash[:result_text] = "You need must login to see all the media."
+      flash[:result_text] = "You need to login to see all the media."
       redirect_to root_path
     end
   end
@@ -39,7 +39,12 @@ class WorksController < ApplicationController
   end
 
   def show
-    @votes = @work.votes.order(created_at: :desc)
+    if login_user?
+      @votes = @work.votes.order(created_at: :desc)
+    else
+      flash[:result_text] = "You need to login to see this content."
+      redirect_to root_path
+    end
   end
 
   def edit
