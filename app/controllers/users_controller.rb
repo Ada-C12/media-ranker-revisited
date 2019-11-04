@@ -29,8 +29,9 @@ class UsersController < ApplicationController
         # be to display error messages to make future
         # debugging easier.
         flash[:error] = "Could not create new user account: #{user.errors.messages}"
-        return redirect_to root_path
+        
       end
+      return redirect_to root_path
     end
 
     # If we get here, we have a valid user instance

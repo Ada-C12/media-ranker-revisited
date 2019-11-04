@@ -4,8 +4,6 @@ describe UsersController do
 let(:dan) { users(:dan) }
   describe 'auth_callback' do
       it "should log in an existing user" do
-      # count how many users we have to start with
-
       start_count = User.count
 
       OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(dan))
@@ -19,13 +17,15 @@ let(:dan) { users(:dan) }
 
     it "should create a new user" do
       start_count = User.count
-      user = User.new(provider: "github", uid: 1234567, email: "nt@adadev.org", name: "natalie")
+      natalie = User.new(provider: "github", uid: 1234567, email: "nt@adadev.org", name: "natalie", username: "natalietapias")
 
-      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(user)
+      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(natalie))
       
+      get auth_callback_path(:github)
+
       must_redirect_to root_path 
-      session[:user_id].must_equal user.uid
-      expect(start_count).must_equal (User.count - 1)
+      expect(User.find_by(name: "natalie").uid).must_equal natalie.uid
+      # expect(start_count).must_equal (User.count - 1)
     end
 
     it "should redirect to root_path if passed invalid auth_hash" do
