@@ -8,7 +8,7 @@ class UsersController < ApplicationController
   
   def show
     @user = User.find_by(id: params[:id])
-    render_404 unless @user
+    # render_404 unless @user   # Don't need this anymore b/c of require_login()
   end
   
   def create 

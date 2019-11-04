@@ -490,8 +490,8 @@ describe WorksController do
         
         post upvote_path(id: existing_work.id)
         
-        expect(flash[:result_text]).must_equal "You must be logged in to view this section"
         expect(flash[:status]).must_equal :failure
+        expect(flash[:result_text]).must_equal "You must be logged in to view this section"
         expect(Vote.count).must_equal before_count
         must_redirect_to root_path
       end
