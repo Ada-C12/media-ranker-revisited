@@ -4,11 +4,11 @@ describe UsersController do
     it "logs in an existing user and redirects to the root route" do
       start_count = User.count
       user = users(:grace)
-    
+      
       perform_login(user)
       must_redirect_to root_path
       session[:user_id].must_equal user.id
-
+      
       User.count.must_equal start_count
     end
     
@@ -31,6 +31,12 @@ describe UsersController do
       User.count.must_equal start_count 
       assert_nil(session[:user_id])
     end
+    
+    it "logs out a logged-in user" do
+      perform_login(users(:grace))
+      delete logout_path 
+      assert_nil(session[:user_id])
+    end 
   end
 end
 
