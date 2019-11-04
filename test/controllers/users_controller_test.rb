@@ -21,4 +21,19 @@ describe UsersController do
       must_redirect_to root_path
     end
   end
+
+  describe 'logout' do
+    it 'logs out a logged in user and redirects to root' do
+      perform_login
+      delete logout_path
+      refute session[:user_id]
+      must_redirect_to root_path
+    end
+
+    it 'redirects to root if user isnt logged in' do
+      delete logout_path
+      refute session[:user_id]
+      must_redirect_to root_path
+    end
+  end
 end
