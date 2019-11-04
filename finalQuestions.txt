@@ -1,0 +1,38 @@
+# MediaRanker Revisited
+Congratulations! You're submitting your assignment!
+
+## Comprehension Questions
+Question | Answer
+---      | ---
+What did you need to configure and setup to make OAuth installed and work? | 1. get client ID & key from Github or whatever OAuth Provider I use. 2. Save that info in .env, and save .env in .gitignore. 3. add "omniauth" and "omniauth-github" gems in gemfile and $bundle install. 4. Change rails config to recognize and use omniauth & github, by making new file config/initializers/omniauth.rb. 5. Set up the github_login route and auth_callback routes, also logout route in config/routes.rb. 6. Go to Users_ctrller.rb and set up how to handle/process/store the info hash that github will be sending to auth_callback_path. (can refactor out dealing with the minutiae of hash fields in model/user.rb). 7. Make migrations to account for whatever new columns may be needed for users database. 8. Remember to code the session[:user_id] and flash[:whatever] in the User#create action.
+What areas of Rails app code did you need to create/write/modify in order to change logging in to use OAuth? | I had to dump all the preexisting codes for Works#login() and Works#login_form because they no longer apply, also had to dump their associated routes in config/routes.rb
+What was one controller test you updated? Why did you need to update it? | One of the tests I updated was for Works#show, where I have to differentiate between a logged in user and a guest.  I needed to make sure that an unlogged-in guest cannot see another actual user's personal show page.
+Why did we need to mock OAuth for testing? | We don't want to send actual auth requests to github/facebook/google, we just want to fake a response in the expected format from the OAuth Provider, and see how our app handles it.  
+
+
+#########################
+Optional Wave 4: Advanced Authorization (Ownership)
+Create advanced authorization logic to enforce rules that govern what changes users can make to the site's data. The rules here are more complex than for accessing pages:
+
+Guests cannot change any data on the site 
+DONE!
+
+All logged-in users can add new works to the site
+DONE!
+
+Those works are owned by the user that created them
+TODO: 
+  add migration to make a new reference column in works, where the foreign key is the creator_id
+  $ rails db:migrate
+  in model for Work, add 'belongs_to :user'
+  in model for User, add 'has_many :works'
+
+The user who owns a given work can Edit/Delete that work
+TODO:
+  befpre Work#edit and Work#delete, check session[:user_id] == @work.creator_id
+ 
+
+
+# Do some research into how to use Google or another OAuth provider for authentication and use that provider.
+TODO:
+  yeah that's gonna cost u extra...
