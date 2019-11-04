@@ -15,6 +15,13 @@
 @import "bootstrap";
 @import "users";
 @import "works";
+.success {
+  background-color: lightgreen
+}
+
+.failure {
+  background-color: pink
+}
 
 $primary-font: 'Gudea', sans-serif;
 $primary-teal: #26A69A;
