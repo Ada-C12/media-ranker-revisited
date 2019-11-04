@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
   skip_before_action :require_login, only: [:create]
-
-
+  
+  
   def index
     @users = User.all
   end
@@ -41,14 +41,9 @@ class UsersController < ApplicationController
   end
   
   def logout
-    if session[:user_id]
-      session[:user_id] = nil
-      flash[:success] = "Successfully logged out!"
-      return redirect_to root_path
-    else
-      flash[:error] = "How can you log out when you ain't even logged in to begin with?"
-      return redirect_to root_path
-    end
+    session[:user_id] = nil
+    flash[:success] = "Successfully logged out!"
+    return redirect_to root_path
   end
   
 end

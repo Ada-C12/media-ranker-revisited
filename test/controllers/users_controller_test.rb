@@ -59,7 +59,9 @@ describe UsersController do
       expect(session[:user_id]).must_equal nil
       
       delete logout_path
-      expect(flash[:error]).must_equal "How can you log out when you ain't even logged in to begin with?"
+      
+      expect(flash[:status]).must_equal :failure
+      expect(flash[:result_text]).must_equal "You must be logged in to view this section"
       must_redirect_to root_path
     end
   end
