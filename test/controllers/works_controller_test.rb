@@ -161,7 +161,7 @@ describe WorksController do
     end
     
     describe "edit" do
-      it "succeeds for an extant work ID" do
+      it "succeeds for an extant work ID belonging to the user" do
         get edit_work_path(existing_work.id)
         
         must_respond_with :success
@@ -175,6 +175,12 @@ describe WorksController do
         
         must_respond_with :not_found
       end
+      
+      it "redirects when a user attempts to edit a work they did not contribute" do 
+        get edit_work_path(works(:poodr))
+        must_respond_with :redirect
+        expect(flash[:status]).must_equal :failure 
+      end 
     end
     
     describe "update" do
@@ -214,7 +220,7 @@ describe WorksController do
     end
     
     describe "destroy" do
-      it "succeeds for an extant work ID" do
+      it "succeeds for an extant work ID contributed by the logged-in user" do
         expect {
           delete work_path(existing_work.id)
         }.must_change "Work.count", -1
@@ -233,6 +239,12 @@ describe WorksController do
         
         must_respond_with :not_found
       end
+      
+      it "redirects when a user attempts to delete a work they did not contribute" do 
+        get edit_work_path(works(:poodr))
+        must_respond_with :redirect
+        expect(flash[:status]).must_equal :failure 
+      end 
     end
     
     describe "upvote" do
