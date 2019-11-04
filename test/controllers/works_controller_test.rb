@@ -34,20 +34,34 @@ describe WorksController do
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
 
   describe "index" do
-    it "succeeds when there are works" do
-      get works_path
-
-      must_respond_with :success
+    describe 'guest user' do
+      it 'redirects to root with an error' do
+        get works_path
+        expect(flash[:status]).must_equal :failure
+        must_redirect_to root_path
+      end
     end
-
-    it "succeeds when there are no works" do
-      Work.all do |work|
-        work.destroy
+    
+    describe 'logged in user' do
+      before do
+        perform_login
       end
 
-      get works_path
+      it "succeeds when there are works" do
+        get works_path
 
-      must_respond_with :success
+        must_respond_with :success
+      end
+
+      it "succeeds when there are no works" do
+        Work.all do |work|
+          work.destroy
+        end
+
+        get works_path
+
+        must_respond_with :success
+      end
     end
   end
 
