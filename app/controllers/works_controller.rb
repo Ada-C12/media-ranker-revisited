@@ -11,7 +11,12 @@ class WorksController < ApplicationController
   end
 
   def index
-    @works_by_category = Work.to_category_hash
+    if login_user?
+      @works_by_category = Work.to_category_hash
+    else
+      flash[:result_text] = "You need must login to see all the media."
+      redirect_to root_path
+    end
   end
 
   def new
