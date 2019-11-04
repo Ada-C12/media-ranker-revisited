@@ -1,7 +1,9 @@
 require "test_helper"
 
 describe UsersController do
-  describe "auth_callback" do
+  let(:existing_user) { users(:kari) }
+  
+  describe "auth_callback (create)" do
     it "logs in a new user and redirects them back to the root path" do
       user = User.new(
         uid: "111111",
@@ -36,7 +38,6 @@ describe UsersController do
 
     
     it "redirects back to the root path for invalid callbacks" do
-
       expect {
         perform_login(User.new)
       }.wont_change "User.count"
@@ -46,7 +47,7 @@ describe UsersController do
     end
   end
 
-  describe "destroy (loggout)" do
+  describe "loggout (destroy)" do
     it "successfully logs out a logged in user" do
       user = users(:dan)
       perform_login(user)
@@ -70,5 +71,77 @@ describe UsersController do
       expect(session[:user_id]).must_be_nil
       refute_equal "Successfully logged out!", flash[:success]
     end 
+  end
+
+
+  describe "index" do
+    describe 'logged out' do
+      it 'responds with redirect and error message if not logged in' do
+        delete logout_path
+        expect(session[:user_id]).must_be_nil
+        
+        get users_path
+
+        assert_equal :failure, flash[:status]
+        assert_equal "You must be logged in to do that.", flash[:result_text]
+        must_redirect_to root_path
+      end
+    end
+    
+    describe 'logged in' do
+      before do
+        perform_login(users(:dan))
+      end
+      
+      it "succeeds when there are users" do
+        get works_path
+
+        must_respond_with :success
+      end
+
+      it "succeeds when there are no users" do
+        User.destroy_all
+        perform_login(users(:dan))
+        
+        get users_path
+
+        must_respond_with :success
+      end
+    end
+  end
+
+  describe "show" do
+    describe 'logged out' do
+      it 'responds with redirect and error message if not logged in' do
+        delete logout_path
+        expect(session[:user_id]).must_be_nil
+        
+        get user_path(existing_user.id)
+
+        assert_equal :failure, flash[:status]
+        assert_equal "You must be logged in to do that.", flash[:result_text]
+        must_redirect_to root_path
+      end
+    end
+    
+    describe 'logged in' do
+      before do
+        perform_login(users(:dan))
+      end
+      it "succeeds for an existing user ID" do
+        get user_path(existing_user.id)
+
+        must_respond_with :success
+      end
+
+      it "renders 404 not_found for a bogus user ID" do
+        destroyed_id = existing_user.id
+        existing_user.destroy
+
+        get user_path(destroyed_id)
+
+        must_respond_with :not_found
+      end
+    end
   end
 end
