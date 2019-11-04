@@ -42,6 +42,26 @@ describe WorksController do
 
     
   end
+  
+  describe "show" do
+    it "succeeds for an extant work ID" do
+      perform_login(users(:dan))
+      delete logout_path
+      get work_path(existing_work.id)
+
+    
+      must_redirect_to root_path
+    end
+
+    it "renders 404 not_found for a bogus work ID" do
+      destroyed_id = existing_work.id
+      existing_work.destroy
+
+      get work_path(destroyed_id)
+
+      must_respond_with :not_found
+    end
+  end
 end
 
 describe "authenticated" do
@@ -59,6 +79,8 @@ describe "authenticated" do
     end
 
     it "succeeds when there are no works" do
+      perform_login(users(:dan))
+
       Work.all do |work|
         work.destroy
       end
@@ -66,6 +88,24 @@ describe "authenticated" do
       get works_path
 
       must_respond_with :success
+    end
+  end
+  describe "show" do
+    it "succeeds for an extant work ID" do
+      perform_login(users(:dan))
+      get work_path(existing_work.id)
+
+      must_respond_with :success
+    end
+
+    it "renders 404 not_found for a bogus work ID" do
+      perform_login(users(:dan))
+      destroyed_id = existing_work.id
+      existing_work.destroy
+
+      get work_path(destroyed_id)
+
+      must_respond_with :not_found
     end
   end
 end
@@ -114,22 +154,7 @@ end
     end
   end
 
-  describe "show" do
-    it "succeeds for an extant work ID" do
-      get work_path(existing_work.id)
-
-      must_respond_with :success
-    end
-
-    it "renders 404 not_found for a bogus work ID" do
-      destroyed_id = existing_work.id
-      existing_work.destroy
-
-      get work_path(destroyed_id)
-
-      must_respond_with :not_found
-    end
-  end
+ 
 
   describe "edit" do
     it "succeeds for an extant work ID" do
@@ -219,7 +244,7 @@ end
       logout_path
 
       post upvote_path(existing_work)
-      flash[:result_text].must_equal "You must log in to do that"
+      flash[:result_text].must_equal "Could not upvote"
       must_redirect_to work_path(existing_work)
     end
 
