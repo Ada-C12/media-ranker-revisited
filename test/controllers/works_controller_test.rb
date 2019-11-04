@@ -228,6 +228,17 @@ describe WorksController do
         delete work_path(work.id)
       }.must_change "Work.count", -1
     end
+
+
+    it "can not destroy a work created by other user" do
+      perform_login(users(:georgina))
+      work = works(:another_album)
+      
+      delete work_path(work.id)
+      
+      expect(flash[:result_text]).must_include "You can only delete the media created by yourself."
+      must_redirect_to root_path
+    end
   end
 
   describe "upvote" do
