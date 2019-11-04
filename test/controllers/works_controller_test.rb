@@ -1,4 +1,4 @@
-require "test_helper"
+require "./test/test_helper"
 
 describe WorksController do
   let(:existing_work) { works(:album) }
@@ -206,7 +206,12 @@ describe WorksController do
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      skip
+      perform_login(users(:georgina))
+      work = works(:another_album)
+      
+      expect {
+        post upvote_path(work.id)
+      }.must_change "Vote.count", 1
     end
 
     it "redirects to the work page if the user has already voted for that work" do
