@@ -21,7 +21,13 @@ class WorksController < ApplicationController
   end
   
   def new
-    @work = Work.new
+    find_user
+    if @login_user
+      @work = Work.new
+    else
+      flash[:result_text] = "You must log in to do that"
+      redirect_to root_path
+    end
   end
   
   def create

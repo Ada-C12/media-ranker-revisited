@@ -63,11 +63,19 @@ describe WorksController do
   end
   
   describe "new" do
-    it "succeeds" do
+    it "succeeds if logged in user" do
+      #adds a logged in user to previous test 
+      user = users(:dan)
+      perform_login(user)
       get new_work_path
-      
       must_respond_with :success
     end
+    
+    it "redirects to root path if guest" do
+      get new_work_path
+      must_redirect_to root_path
+    end
+    
   end
   
   describe "create" do
