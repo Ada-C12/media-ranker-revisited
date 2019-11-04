@@ -4,29 +4,32 @@ describe UsersController do
     it "logs in an existing user and redirects to the root route" do
       start_count = User.count
       user = users(:grace)
-
-      # Tell OmniAuth to use this user's info when it sees
-      # an auth callback from github
-      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
-
-      # Send a login request for that user
-      # Note that we're using the named path for the callback, as defined
-      # in the `as:` clause in `config/routes.rb`
-      get auth_callback_path(:github)
-
+    
+      perform_login(user)
       must_redirect_to root_path
-
-      # Since we can read the session, check that the user ID was set as expected
       session[:user_id].must_equal user.id
 
-      # Should *not* have created a new user
       User.count.must_equal start_count
     end
-
+    
     it "creates an account for a new user and redirects to the root route" do
+      start_count = User.count
+      new_user = User.new(provider: "github", uid: 99999, name: "test_user", email: "test@user.com")
+      perform_login(new_user)
+      
+      must_redirect_to root_path
+      User.count.must_equal start_count + 1
+      session[:user_id].must_equal User.last.id
     end
-
+    
     it "redirects to the login route if given invalid user data" do
+      start_count = User.count
+      invalid_user = User.new(provider: nil, uid: nil, name: nil, email: nil)
+      perform_login(invalid_user)
+      
+      must_redirect_to root_path
+      User.count.must_equal start_count 
+      assert_nil(session[:user_id])
     end
   end
 end
