@@ -1,6 +1,7 @@
 class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
+  before_action :validate_user, only: [:index, :new, :show, :destroy, :edit]
   before_action :category_from_work, except: [:root, :index, :new, :create]
 
   def root
@@ -11,26 +12,10 @@ class WorksController < ApplicationController
   end
 
   def index
-    @user = User.find_by(id: session[:user_id])
-
-    if @user.nil?
-      flash[:result_text] = "You must log in to do that"
-      redirect_to root_path
-      return
-    end
-    
     @works_by_category = Work.to_category_hash
   end
 
   def new
-    @user = User.find_by(id: session[:user_id])
-
-    if @user.nil?
-    flash[:result_text] = "You must log in to do that"
-      redirect_to root_path
-      return
-    end
-
     @work = Work.new
   end
 
@@ -52,27 +37,10 @@ class WorksController < ApplicationController
   end
 
   def show
-    @user = User.find_by(id: session[:user_id])
-
-    if @user.nil?
-      flash[:result_text] = "You must log in to do that"
-      redirect_to root_path
-      return
-    end
-    
     @votes = @work.votes.order(created_at: :desc)
   end
 
   def edit
-    @user = User.find_by(id: session[:user_id])
-
-    if @user.nil?
-      flash[:result_text] = "You must log in to do that"
-
-      redirect_to root_path
-      return
-    end
-
     if @user.id != @work.user_id
       flash[:result_text] = "You are not authorized to perform this action"
       redirect_to root_path
@@ -95,19 +63,12 @@ class WorksController < ApplicationController
   end
 
   def destroy
-    @user = User.find_by(id: session[:user_id])
-
-    if @user.nil?
-    flash[:result_text] = "You must log in to do that"
-      redirect_to root_path
-      return
-    end
-
     if @user.id != @work.user_id
       flash[:result_text] = "You are not authorized to perform this action"
       redirect_to root_path
       return
     end
+
 
     @work.destroy
     flash[:status] = :success
@@ -139,6 +100,16 @@ class WorksController < ApplicationController
 
   def media_params
     params.require(:work).permit(:title, :category, :creator, :description, :publication_year)
+  end
+
+  def validate_user
+    @user = User.find_by(id: session[:user_id])
+
+    if @user.nil?
+      flash[:result_text] = "You must log in to do that"
+      redirect_to root_path
+      return
+    end
   end
 
   def category_from_work
