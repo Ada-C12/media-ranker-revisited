@@ -1,6 +1,7 @@
 class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
+  skip_before_action :require_login, only: [:root]
   before_action :category_from_work, except: [:root, :index, :new, :create]
 
   def root
@@ -75,13 +76,10 @@ class WorksController < ApplicationController
     else
       flash[:result_text] = "You must log in to do that"
     end
-
-    # Refresh the page to show either the updated vote count
-    # or the error message
     redirect_back fallback_location: work_path(@work)
   end
 
-  private
+private
 
   def media_params
     params.require(:work).permit(:title, :category, :creator, :description, :publication_year)
