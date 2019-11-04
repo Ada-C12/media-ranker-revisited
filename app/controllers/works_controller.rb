@@ -1,6 +1,7 @@
 class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
+  before_action :validate_user, only: [:index, :new, :show, :destroy, :edit]
   before_action :category_from_work, except: [:root, :index, :new, :create]
 
   def root
@@ -20,7 +21,9 @@ class WorksController < ApplicationController
 
   def create
     @work = Work.new(media_params)
+    @work.user_id = User.find(session[:user_id]).id
     @media_category = @work.category
+
     if @work.save
       flash[:status] = :success
       flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
@@ -38,6 +41,11 @@ class WorksController < ApplicationController
   end
 
   def edit
+    if @user.id != @work.user_id
+      flash[:result_text] = "You are not authorized to perform this action"
+      redirect_to root_path
+      return
+    end
   end
 
   def update
@@ -55,6 +63,13 @@ class WorksController < ApplicationController
   end
 
   def destroy
+    if @user.id != @work.user_id
+      flash[:result_text] = "You are not authorized to perform this action"
+      redirect_to root_path
+      return
+    end
+
+
     @work.destroy
     flash[:status] = :success
     flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
@@ -87,8 +102,19 @@ class WorksController < ApplicationController
     params.require(:work).permit(:title, :category, :creator, :description, :publication_year)
   end
 
+  def validate_user
+    @user = User.find_by(id: session[:user_id])
+
+    if @user.nil?
+      flash[:result_text] = "You must log in to do that"
+      redirect_to root_path
+      return
+    end
+  end
+
   def category_from_work
     @work = Work.find_by(id: params[:id])
+
     render_404 unless @work
     @media_category = @work.category.downcase.pluralize
   end

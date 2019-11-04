@@ -17,6 +17,39 @@ describe Work do
         user.must_be_kind_of User
       end
     end
+
+    it "can have a user" do
+      album = works(:album)
+      album.must_respond_to :user
+    end
+
+    it "can be assigned user using 'user_id'" do
+      album = works(:album)
+
+      user = users(:dan)
+
+      album.user_id = user.id
+
+      expect(album.valid?).must_equal true
+
+      album.save
+
+      expect(album.user).must_equal user
+    end
+
+    it "can be assigned user using 'user'" do
+      album = works(:album)
+
+      user = users(:dan)
+
+      album.user = user
+
+      expect(album.valid?).must_equal true
+
+      album.save
+
+      expect(album.user_id).must_equal user.id
+    end
   end
 
   describe "validations" do
