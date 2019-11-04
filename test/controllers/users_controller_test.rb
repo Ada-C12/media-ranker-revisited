@@ -14,7 +14,7 @@ describe UsersController do
     
     it "creates an account for a new user and redirects to the root route" do
       start_count = User.count
-      new_user = User.new(provider: "github", uid: 99999, name: "test_user", email: "test@user.com")
+      new_user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
       perform_login(new_user)
       
       must_redirect_to root_path
@@ -24,7 +24,7 @@ describe UsersController do
     
     it "redirects to the login route if given invalid user data" do
       start_count = User.count
-      invalid_user = User.new(provider: nil, uid: nil, name: nil, email: nil)
+      invalid_user = User.new(provider: nil, uid: nil, username: nil, email: nil)
       perform_login(invalid_user)
       
       must_redirect_to root_path

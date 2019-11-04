@@ -3,10 +3,9 @@ ada:
   provider: github
   uid: 12345
   email: ada@adadevelopersacademy.org
-  name: Ada Lovelace
-
+  username: ada_lovelace
 grace:
   provider: github
   uid: 13371337
   email: grace@hopper.net
-  name: Grace Hopper
+  username: grace_hopper

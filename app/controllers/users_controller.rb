@@ -13,13 +13,13 @@ class UsersController < ApplicationController
     user = User.find_by(uid: auth_hash[:uid], provider: "github")
     if user 
       flash[:status] = :success
-      flash[:messages] = { message: ["Logged in as returning user #{user.name}"] }
+      flash[:messages] = { message: ["Logged in as returning user #{user.username}"] }
       session[:user_id] = user.id
     else
       user = User.build_from_github(auth_hash)
       if user.save
         flash[:status] = :success 
-        flash[:messages] = { message: ["Logged in as new user #{user.name}"] }
+        flash[:messages] = { message: ["Logged in as new user #{user.username}"] }
         session[:user_id] = user.id
       else
         flash[:status] = :failure
