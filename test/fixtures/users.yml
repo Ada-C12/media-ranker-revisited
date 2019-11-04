@@ -7,11 +7,11 @@ khabib:
   name: khabib
   email: khabib@gmail.com
 
-blaire:
-  username: blairebear
+dan:
+  username: danbear
   uid: 1234
   provider: github
-  name: blaire
-  email: blaire@gmail.com
+  name: dan
+  email: dan@gmail.com
 
 
