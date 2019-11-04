@@ -36,7 +36,7 @@ describe WorksController do
         get works_path
 
         must_respond_with :redirect
-        flash[:result_text].must_equal "You must be logged in to view this section"
+        expect(flash[:result_text]).must_equal "You must be logged in to view this section"
       end
     end
     
@@ -45,7 +45,7 @@ describe WorksController do
         get work_path(works(:movie))
 
         must_respond_with :redirect
-        flash[:result_text].must_equal "You must be logged in to view this section"
+        expect(flash[:result_text]).must_equal "You must be logged in to view this section"
       end
     end
   end
