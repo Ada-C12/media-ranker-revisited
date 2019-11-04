@@ -95,7 +95,7 @@ describe WorksController do
     end
     
     describe "Guests" do
-      it "redirects when there are works" do
+      it "fails at: redirects when there are works" do
         get works_path
         
         must_respond_with :redirect
@@ -103,7 +103,7 @@ describe WorksController do
         expect(flash[:result_text]).must_equal "You must be logged in to view this section"
       end
       
-      it "redirects when there are no works" do
+      it "rails at: redirects when there are no works" do
         Work.all do |work|
           work.destroy
         end
@@ -180,10 +180,6 @@ describe WorksController do
     end
     
     describe "Guests" do
-      
-      # expect(flash[:status]).must_equal :failure
-      # expect(flash[:result_text]).must_equal "You must be logged in to view this section"
-      
       it "fails at: creates a work with valid data for a real category" do
         new_work = { work: { title: "Dirty Computer", category: "album" } }
         
@@ -208,7 +204,7 @@ describe WorksController do
         # must_respond_with :bad_request  ### won't even get to this stage
       end
       
-      it "renders 400 bad_request for bogus categories" do
+      it "fails at: renders 400 bad_request for bogus categories" do
         INVALID_CATEGORIES.each do |category|
           invalid_work = { work: { title: "Invalid Work", category: category } }
           
@@ -225,72 +221,166 @@ describe WorksController do
   end
   
   describe "show" do
-    it "succeeds for an extant work ID" do
-      get work_path(existing_work.id)
+    describe "Logged in users" do
+      before do
+        perform_login(kari)
+      end
       
-      must_respond_with :success
+      it "succeeds for an extant work ID" do
+        get work_path(existing_work.id)
+        
+        must_respond_with :success
+      end
+      
+      it "renders 404 not_found for a bogus work ID" do
+        destroyed_id = existing_work.id
+        existing_work.destroy
+        
+        get work_path(destroyed_id)
+        
+        must_respond_with :not_found
+      end
     end
     
-    it "renders 404 not_found for a bogus work ID" do
-      destroyed_id = existing_work.id
-      existing_work.destroy
+    describe "Guests" do
+      it "fails at: succeeds for an extant work ID" do
+        get work_path(existing_work.id)
+        
+        expect(flash[:status]).must_equal :failure
+        expect(flash[:result_text]).must_equal "You must be logged in to view this section"
+        must_respond_with :redirect
+      end
       
-      get work_path(destroyed_id)
-      
-      must_respond_with :not_found
+      it "fails at: renders 404 not_found for a bogus work ID" do
+        destroyed_id = existing_work.id
+        existing_work.destroy
+        
+        get work_path(destroyed_id)
+        
+        expect(flash[:status]).must_equal :failure
+        expect(flash[:result_text]).must_equal "You must be logged in to view this section"
+        must_respond_with :redirect
+      end
     end
   end
   
   describe "edit" do
-    it "succeeds for an extant work ID" do
-      get edit_work_path(existing_work.id)
+    describe "Logged in users" do
+      before do
+        perform_login(kari)
+      end
       
-      must_respond_with :success
+      it "succeeds for an extant work ID" do
+        get edit_work_path(existing_work.id)
+        
+        must_respond_with :success
+      end
+      
+      it "renders 404 not_found for a bogus work ID" do
+        bogus_id = existing_work.id
+        existing_work.destroy
+        
+        get edit_work_path(bogus_id)
+        
+        must_respond_with :not_found
+      end
     end
     
-    it "renders 404 not_found for a bogus work ID" do
-      bogus_id = existing_work.id
-      existing_work.destroy
+    describe "Guests" do
+      it "fails at: succeeds for an extant work ID" do
+        get edit_work_path(existing_work.id)
+        
+        expect(flash[:status]).must_equal :failure
+        expect(flash[:result_text]).must_equal "You must be logged in to view this section"
+        must_respond_with :redirect
+      end
       
-      get edit_work_path(bogus_id)
-      
-      must_respond_with :not_found
+      it "fails at: renders 404 not_found for a bogus work ID" do
+        bogus_id = existing_work.id
+        existing_work.destroy
+        
+        get edit_work_path(bogus_id)
+        
+        expect(flash[:status]).must_equal :failure
+        expect(flash[:result_text]).must_equal "You must be logged in to view this section"
+        must_respond_with :redirect
+      end
     end
   end
   
   describe "update" do
-    it "succeeds for valid data and an extant work ID" do
-      updates = { work: { title: "Dirty Computer" } }
+    describe "Logged in users" do
+      before do
+        perform_login(kari)
+      end
       
-      expect {
-        put work_path(existing_work), params: updates
-      }.wont_change "Work.count"
-      updated_work = Work.find_by(id: existing_work.id)
+      it "succeeds for valid data and an extant work ID" do
+        updates = { work: { title: "Dirty Computer" } }
+        
+        expect {
+          put work_path(existing_work), params: updates
+        }.wont_change "Work.count"
+        updated_work = Work.find_by(id: existing_work.id)
+        
+        updated_work.title.must_equal "Dirty Computer"
+        must_respond_with :redirect
+        must_redirect_to work_path(existing_work.id)
+      end
       
-      updated_work.title.must_equal "Dirty Computer"
-      must_respond_with :redirect
-      must_redirect_to work_path(existing_work.id)
+      it "renders bad_request for bogus data" do
+        updates = { work: { title: nil } }
+        
+        expect {
+          put work_path(existing_work), params: updates
+        }.wont_change "Work.count"
+        
+        work = Work.find_by(id: existing_work.id)
+        
+        must_respond_with :not_found
+      end
+      
+      it "renders 404 not_found for a bogus work ID" do
+        bogus_id = existing_work.id
+        existing_work.destroy
+        
+        put work_path(bogus_id), params: { work: { title: "Test Title" } }
+        
+        must_respond_with :not_found
+      end
     end
     
-    it "renders bad_request for bogus data" do
-      updates = { work: { title: nil } }
+    describe "Guests" do
+      it "fails at: succeeds for valid data and an extant work ID" do
+        updates = { work: { title: "Dirty Computer" } }
+        
+        expect { put work_path(existing_work), params: updates }.wont_change "Work.count"
+        
+        expect(flash[:status]).must_equal :failure
+        expect(flash[:result_text]).must_equal "You must be logged in to view this section"
+        must_respond_with :redirect
+        must_redirect_to root_path
+      end
       
-      expect {
-        put work_path(existing_work), params: updates
-      }.wont_change "Work.count"
+      it "fails at: renders bad_request for bogus data" do
+        updates = { work: { title: nil } }
+        
+        expect { put work_path(existing_work), params: updates }.wont_change "Work.count"
+        
+        expect(flash[:status]).must_equal :failure
+        expect(flash[:result_text]).must_equal "You must be logged in to view this section"
+        must_redirect_to root_path
+      end
       
-      work = Work.find_by(id: existing_work.id)
-      
-      must_respond_with :not_found
-    end
-    
-    it "renders 404 not_found for a bogus work ID" do
-      bogus_id = existing_work.id
-      existing_work.destroy
-      
-      put work_path(bogus_id), params: { work: { title: "Test Title" } }
-      
-      must_respond_with :not_found
+      it "fails at: renders 404 not_found for a bogus work ID" do
+        bogus_id = existing_work.id
+        existing_work.destroy
+        
+        put work_path(bogus_id), params: { work: { title: "Test Title" } }
+        
+        expect(flash[:status]).must_equal :failure
+        expect(flash[:result_text]).must_equal "You must be logged in to view this section"
+        must_redirect_to root_path
+      end
     end
   end
   
@@ -314,6 +404,11 @@ describe WorksController do
       
       must_respond_with :not_found
     end
+    
+    
+    # expect(flash[:status]).must_equal :failure
+    # expect(flash[:result_text]).must_equal "You must be logged in to view this section"
+    
   end
   
   describe "upvote" do
