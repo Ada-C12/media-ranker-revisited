@@ -189,19 +189,46 @@ describe WorksController do
 
   describe "upvote" do
     it "redirects to the work page if no user is logged in" do
-      skip
+      post upvote_path(existing_work.id)
+      assert(flash[:result_text] = "You must log in to do that")
+      must_redirect_to work_path(existing_work.id)
     end
 
     it "redirects to the work page after the user has logged out" do
-      skip
+      user = users(:dan)
+      perform_login(user)
+      delete logout_path
+
+      post upvote_path(existing_work.id)
+      assert(flash[:result_text] = "You must log in to do that")
+      must_redirect_to work_path(existing_work.id)
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      skip
+      user = users(:patrick)
+      perform_login(user)
+
+      expect {
+        post upvote_path(existing_work.id)
+      }.must_change "Vote.count", 1
+
+      assert(flash[:result_text] = "Successfully upvoted!")
+      assert(flash[:status] = :success)
+      must_redirect_to work_path(existing_work.id)
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      skip
+    
+      user = users(:dan)
+      perform_login(user)
+    
+
+      expect {
+        post upvote_path(existing_work.id)
+      }.wont_change "Vote.count"
+
+      assert(flash[:result_text] = "Could not upvote")
+      must_redirect_to work_path(existing_work.id)
     end
   end
 end
