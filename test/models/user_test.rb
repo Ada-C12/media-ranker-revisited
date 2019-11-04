@@ -20,6 +20,7 @@ describe User do
   end
 
   describe "validations" do
+    # These two validations are failing the model test, but when I add the presence and uniqueness requirements to user.rb, a host of other tests fail.
     it "requires a username" do
       user = User.new
       user.valid?.must_equal false
