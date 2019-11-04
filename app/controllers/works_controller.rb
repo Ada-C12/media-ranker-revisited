@@ -2,6 +2,8 @@ class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
   before_action :category_from_work, except: [:root, :index, :new, :create]
+  skip_before_action :require_login, only: [:root]
+  before_action :user_match, only: [:edit, :destroy]
 
   def root
     @albums = Work.best_albums
@@ -21,6 +23,7 @@ class WorksController < ApplicationController
   def create
     @work = Work.new(media_params)
     @media_category = @work.category
+    @work.user = @login_user
     if @work.save
       flash[:status] = :success
       flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
@@ -91,5 +94,13 @@ class WorksController < ApplicationController
     @work = Work.find_by(id: params[:id])
     render_404 unless @work
     @media_category = @work.category.downcase.pluralize
+  end
+
+  def user_match
+    if @work.user == nil || @work.user != @login_user
+      flash[:status] = :failure
+      flash[:result_text] = "You do not have editing privileges for this work."
+      redirect_to root_path
+    end
   end
 end
