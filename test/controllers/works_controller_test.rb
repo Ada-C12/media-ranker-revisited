@@ -210,7 +210,11 @@ describe WorksController do
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      skip
+      perform_login(users(:georgina))
+      work = works(:album)
+      post upvote_path(work.id)
+      post upvote_path(work.id)
+      must_redirect_to work_path(work.id)
     end
   end
 end
