@@ -1,8 +1,8 @@
 require "test_helper"
-require "pry"
+
 describe UsersController do
 let(:dan) { users(:dan) }
-let(:natalie ) { User.new(username: "natalietapias", provider: "github",  name: "natalie", email: "nt@adadev.org", uid: 12345678) }
+let(:natalie ) {  }
       
 
   describe 'auth_callback' do
@@ -17,20 +17,17 @@ let(:natalie ) { User.new(username: "natalietapias", provider: "github",  name: 
       
     it "should create a new user" do
       start_count = User.count
+      user_new = users(:kari)
+      user_new.uid = 2420
+      perform_login(user_new)
     
-      perform_login(natalie)
-      
-      expect(User.count).must_equal start_count + 1
-     
-
-      # must_redirect_to root_path 
-      # expect(User.count).must_equal (start_count + 1)
+      User.count.must_equal start_count + 1
     end
 
     it "should flash error and redirect to root path if invalid user info provided" do
       start_count = User.count
       ted = User.new(provider: "github", name: "ted")
-      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(ted))
+      perform_login(ted)
       get auth_callback_path(:github)
 
       
