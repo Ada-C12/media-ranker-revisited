@@ -48,6 +48,7 @@ class WorksController < ApplicationController
   end
 
   def edit
+
   end
 
   def update
@@ -65,10 +66,19 @@ class WorksController < ApplicationController
   end
 
   def destroy
-    @work.destroy
-    flash[:status] = :success
-    flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
-    redirect_to root_path
+    if login_user?
+      name = @work.creator 
+      user = User.find_by(name: name)
+      if user && user.id == session[id: user_id]
+        @work.destroy
+        flash[:status] = :success
+        flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
+        redirect_to root_path
+      else
+        flash[:result_text] = "You can only delete the media created by yourself."
+        redirect_to root_path
+      end
+    end
   end
 
   def upvote
