@@ -1,7 +1,6 @@
 class WorksController < ApplicationController
-  # We should always be able to tell what category
-  # of work we're dealing with
   before_action :category_from_work, except: [:root, :index, :new, :create]
+  before_action :require_login, only: [:index, :show, :create, :edit, :update, :destroy]
 
   def root
     @albums = Work.best_albums
@@ -15,21 +14,33 @@ class WorksController < ApplicationController
   end
 
   def new
-    @work = Work.new
+    if @login_user.nil?
+      flash[:status] = :failure
+      flash[:result_text] = "Only logged in users can access the new form"
+      redirect_to root_path
+    else
+      @work = Work.new
+    end
   end
 
   def create
-    @work = Work.new(media_params)
-    @media_category = @work.category
-    if @work.save
-      flash[:status] = :success
-      flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
-      redirect_to work_path(@work)
+    if @login_user
+      @work = Work.new(media_params)
+      @media_category = @work.category
+      if @work.save
+        flash[:status] = :success
+        flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
+        redirect_to work_path(@work)
+      else
+        flash[:status] = :failure
+        flash[:result_text] = "Could not create #{@media_category.singularize}"
+        flash[:messages] = @work.errors.messages
+        render :new, status: :bad_request
+      end
     else
       flash[:status] = :failure
-      flash[:result_text] = "Could not create #{@media_category.singularize}"
-      flash[:messages] = @work.errors.messages
-      render :new, status: :bad_request
+      flash[:result_text] = "You must be logged in in order to create a work"
+      redirect_to root_path
     end
   end
 
@@ -62,22 +73,21 @@ class WorksController < ApplicationController
   end
 
   def upvote
-    flash[:status] = :failure
     if @login_user
       vote = Vote.new(user: @login_user, work: @work)
       if vote.save
         flash[:status] = :success
         flash[:result_text] = "Successfully upvoted!"
       else
+        flash[:status] = :failure
         flash[:result_text] = "Could not upvote"
         flash[:messages] = vote.errors.messages
       end
     else
+      flash[:status] = :failure
       flash[:result_text] = "You must log in to do that"
     end
 
-    # Refresh the page to show either the updated vote count
-    # or the error message
     redirect_back fallback_location: work_path(@work)
   end
 
