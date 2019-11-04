@@ -385,86 +385,123 @@ describe WorksController do
   end
   
   describe "destroy" do
-    it "succeeds for an extant work ID" do
-      expect {
-        delete work_path(existing_work.id)
-      }.must_change "Work.count", -1
+    describe "Logged in users" do
+      before do
+        perform_login(kari)
+      end
       
-      must_respond_with :redirect
-      must_redirect_to root_path
+      it "succeeds for an extant work ID" do
+        expect {
+          delete work_path(existing_work.id)
+        }.must_change "Work.count", -1
+        
+        must_respond_with :redirect
+        must_redirect_to root_path
+      end
+      
+      it "renders 404 not_found and does not update the DB for a bogus work ID" do
+        bogus_id = existing_work.id
+        existing_work.destroy
+        
+        expect {
+          delete work_path(bogus_id)
+        }.wont_change "Work.count"
+        
+        must_respond_with :not_found
+      end
     end
     
-    it "renders 404 not_found and does not update the DB for a bogus work ID" do
-      bogus_id = existing_work.id
-      existing_work.destroy
+    describe "Guests" do
+      it "fails at: succeeds for an extant work ID" do
+        expect { delete work_path(existing_work.id)}.must_change "Work.count", 0
+        
+        expect(flash[:status]).must_equal :failure
+        expect(flash[:result_text]).must_equal "You must be logged in to view this section"
+        must_respond_with :redirect
+        must_redirect_to root_path
+      end
       
-      expect {
-        delete work_path(bogus_id)
-      }.wont_change "Work.count"
+      it "fails at: renders 404 not_found and does not update the DB for a bogus work ID" do
+        bogus_id = existing_work.id
+        existing_work.destroy
+        
+        expect { delete work_path(bogus_id) }.wont_change "Work.count"
+        
+        expect(flash[:status]).must_equal :failure
+        expect(flash[:result_text]).must_equal "You must be logged in to view this section"
+        must_redirect_to root_path
+      end
       
-      must_respond_with :not_found
+      
     end
-    
-    
-    # expect(flash[:status]).must_equal :failure
-    # expect(flash[:result_text]).must_equal "You must be logged in to view this section"
-    
   end
   
   describe "upvote" do
-    it "redirects to the work page if no user is logged in" do
-      get root_path
-      before_count = Vote.count
+    describe "Logged in users" do
+      before do
+        perform_login(kari)
+      end
       
-      post upvote_path(id: existing_work.id)
       
-      expect(flash[:result_text]).must_equal "You must log in to do that"
-      expect(flash[:status]).must_equal :failure
-      expect(Vote.count).must_equal before_count
-      must_redirect_to work_path(existing_work)
+      #### STOPPED HERE
+      it "redirects to the work page after the user has logged out" do
+        delete logout_path
+        expect(session[:user_id]).must_equal nil
+        before_count = Vote.count
+        
+        post upvote_path(id: existing_work.id)
+        
+        expect(flash[:result_text]).must_equal "You must log in to do that"
+        expect(flash[:status]).must_equal :failure
+        expect(Vote.count).must_equal before_count
+        must_redirect_to work_path(existing_work)
+      end
+      
+      it "succeeds for a logged-in user and a fresh user-vote pair" do
+        Vote.destroy_all
+        before_count = Vote.count
+        
+        post upvote_path(id: existing_work.id)
+        expect(flash[:result_text]).must_equal "Successfully upvoted!"
+        expect(flash[:status]).must_equal :success
+        expect(Vote.count).must_equal (before_count + 1)
+        must_redirect_to work_path(existing_work)
+      end
+      
+      it "redirects to the work page if the user has already voted for that work" do
+        # we know from fixtures that kari ALREADY voted for existing_work
+        before_count = Vote.count
+        
+        # kari casts a vote again
+        post upvote_path(id: existing_work.id)
+        # manually replicate the error msg, b/c scope from works#upvote expired, i think
+        dupe_vote = Vote.create(user_id: kari.id, work_id: existing_work.id)
+        
+        expect(flash[:result_text]).must_equal "Could not upvote"
+        expect(flash[:messages]).must_equal dupe_vote.errors.messages
+        expect(flash[:status]).must_equal :failure
+        expect(Vote.count).must_equal (before_count)
+        must_redirect_to work_path(existing_work)
+      end
     end
     
-    it "redirects to the work page after the user has logged out" do
-      perform_login(kari)
-      delete logout_path
-      expect(session[:user_id]).must_equal nil
-      before_count = Vote.count
+    describe "Guests" do
       
-      post upvote_path(id: existing_work.id)
+      it "will: redirects to the work page if no user is logged in" do
+        get root_path
+        before_count = Vote.count
+        
+        post upvote_path(id: existing_work.id)
+        
+        expect(flash[:result_text]).must_equal "You must be logged in to view this section"
+        expect(flash[:status]).must_equal :failure
+        expect(Vote.count).must_equal before_count
+        must_redirect_to work_path(existing_work)
+      end
       
-      expect(flash[:result_text]).must_equal "You must log in to do that"
-      expect(flash[:status]).must_equal :failure
-      expect(Vote.count).must_equal before_count
-      must_redirect_to work_path(existing_work)
-    end
-    
-    it "succeeds for a logged-in user and a fresh user-vote pair" do
-      perform_login(kari)
-      Vote.destroy_all
-      before_count = Vote.count
+      # expect(flash[:status]).must_equal :failure
+      # expect(flash[:result_text]).must_equal "You must be logged in to view this section"
       
-      post upvote_path(id: existing_work.id)
-      expect(flash[:result_text]).must_equal "Successfully upvoted!"
-      expect(flash[:status]).must_equal :success
-      expect(Vote.count).must_equal (before_count + 1)
-      must_redirect_to work_path(existing_work)
-    end
-    
-    it "redirects to the work page if the user has already voted for that work" do
-      perform_login(kari)
-      # we know from fixtures that kari ALREADY voted for existing_work
-      before_count = Vote.count
-      
-      # kari casts a vote again
-      post upvote_path(id: existing_work.id)
-      # manually replicate the error msg, b/c scope from works#upvote expired, i think
-      dupe_vote = Vote.create(user_id: kari.id, work_id: existing_work.id)
-      
-      expect(flash[:result_text]).must_equal "Could not upvote"
-      expect(flash[:messages]).must_equal dupe_vote.errors.messages
-      expect(flash[:status]).must_equal :failure
-      expect(Vote.count).must_equal (before_count)
-      must_redirect_to work_path(existing_work)
     end
   end
 end
