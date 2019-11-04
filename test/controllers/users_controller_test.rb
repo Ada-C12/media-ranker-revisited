@@ -38,4 +38,21 @@ describe UsersController do
             User.count.must_equal start_count
         end
     end
+
+    describe "destroy -- log out" do
+        it "can log out a logged in user and redirects to root path" do 
+            start_count = User.count
+            returning_user = users(:dan)
+            perform_login(returning_user)
+            must_redirect_to root_path
+            session[:user_id].must_equal returning_user.id
+            User.count.must_equal start_count
+
+            delete logout_path
+
+            must_redirect_to root_path
+            assert_nil(session[:user_id]) 
+            User.count.must_equal start_count
+        end
+    end
 end

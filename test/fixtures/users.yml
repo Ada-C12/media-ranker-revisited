@@ -1,11 +1,15 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 dan:
-  username: dan
+  username: dan1234
+  name: dan
+  email: dan@gmail.com
   uid: 12
   provider: github
 
 kari:
-  username: kari
+  username: kari1234
+  name: kari
+  email: kari@gmail.com
   uid: 122
   provider: github
