@@ -25,12 +25,13 @@ class WorksController < ApplicationController
     if @work.save
       flash[:status] = :success
       flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
-      redirect_to work_path(@work)
+      return redirect_to work_path(@work)
     else
       flash[:status] = :failure
       flash[:result_text] = "Could not create #{@media_category.singularize}"
       flash[:messages] = @work.errors.messages
       render :new, status: :bad_request
+      return
     end
   end
   
@@ -46,12 +47,13 @@ class WorksController < ApplicationController
     if @work.save
       flash[:status] = :success
       flash[:result_text] = "Successfully updated #{@media_category.singularize} #{@work.id}"
-      redirect_to work_path(@work)
+      return redirect_to work_path(@work)
     else
       flash.now[:status] = :failure
       flash.now[:result_text] = "Could not update #{@media_category.singularize}"
       flash.now[:messages] = @work.errors.messages
       render :edit, status: :not_found
+      return
     end
   end
   
@@ -79,7 +81,7 @@ class WorksController < ApplicationController
     
     # Refresh the page to show either the updated vote count
     # or the error message
-    redirect_back fallback_location: work_path(@work)
+    return redirect_back fallback_location: work_path(@work)
   end
   
   private
