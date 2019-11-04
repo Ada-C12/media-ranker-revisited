@@ -1,7 +1,36 @@
 require "test_helper"
 
 describe UsersController do
-  describe "auth_callback" do
+  describe "index action" do
+    it "responds with success" do
+      get users_path
+      must_respond_with :success
+    end
+
+    it "responds with success with no users" do
+      User.destroy_all
+
+      get users_path
+      must_respond_with :success
+    end
+  end
+
+  describe "show action" do
+    it "responds with success for valid ID" do
+      perform_login(users(:dan))
+      get user_path(users(:dan).id)
+
+      must_respond_with :success
+    end
+
+    it "renders 404 for invalid ID" do
+      get user_path(-1)
+
+      must_respond_with :not_found
+    end
+  end
+
+  describe "auth_callback and create action" do
     it "logs in an existing user and redirects to the root route" do
       start_count = User.count
       user = users(:dan)
