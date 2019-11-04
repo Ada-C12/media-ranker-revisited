@@ -29,12 +29,6 @@ describe WorksController do
       must_respond_with :success
     end
   end
-  # describe "index" do
-  #   it "redirects to root path" do
-  #     get works_path
-  #     must_redirect_to root_path
-  #   end
-  # end
 
   CATEGORIES = %w(albums books movies)
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
@@ -261,6 +255,18 @@ describe WorksController do
         get works_path
 
         must_respond_with :redirect
+
+        must_redirect_to root_path
+      end
+    end
+
+    describe "new" do
+      it "will not allow a guest user to access the new form" do
+        get new_work_path
+
+        must_respond_with :redirect
+
+        must_redirect_to root_path
       end
     end
 
@@ -271,16 +277,28 @@ describe WorksController do
         get work_path(work.id)
 
         must_respond_with :redirect
+        must_redirect_to root_path
       end
     end
 
     describe "create" do
       it "will redirect to the main page" do
-        new_work = { work: { title: "Howl's Moving Castle", category: "movie", creator: "Hayao Miyazaki", description: "One of the best movies", publication_year: 2005 } }
+        new_work = {
+          work: {
+            title: "Howl's Moving Castle",
+            category: "movie",
+            creator: "Hayao Miyazaki",
+            description: "One of the best animation movies",
+            publication_year: 2005,
+          },
+        }
 
         expect {
           post works_path, params: new_work
         }.wont_change "Work.count"
+
+        must_respond_with :redirect
+        must_redirect_to root_path
       end
     end
 
@@ -291,8 +309,9 @@ describe WorksController do
         expect {
           delete work_path(work.id)
         }.wont_change "Work.count"
+
         must_redirect_to root_path
-        flash[:error].wont_be_nil
+        flash[:result_text].wont_be_nil
       end
     end
   end
