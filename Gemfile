@@ -46,6 +46,8 @@ group :development, :test do
 
   # Use pry for rails console
   gem 'pry-rails'
+  gem 'ruby-debug-ide', '0.7.0'
+  gem 'debase'
 end
 
 group :test do

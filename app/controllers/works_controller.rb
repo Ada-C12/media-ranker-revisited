@@ -25,6 +25,7 @@ class WorksController < ApplicationController
 
   def create
     @work = Work.new(media_params)
+    @work.user_id = session[:user_id]
     @media_category = @work.category
     if @work.save
       flash[:status] = :success
@@ -48,20 +49,33 @@ class WorksController < ApplicationController
   end
 
   def edit
-
   end
 
   def update
-    @work.update_attributes(media_params)
-    if @work.save
-      flash[:status] = :success
-      flash[:result_text] = "Successfully updated #{@media_category.singularize} #{@work.id}"
-      redirect_to work_path(@work)
-    else
-      flash.now[:status] = :failure
-      flash.now[:result_text] = "Could not update #{@media_category.singularize}"
-      flash.now[:messages] = @work.errors.messages
-      render :edit, status: :not_found
+    if login_user?
+      user_id = @work.user_id
+      user = User.find_by(id: user_id)
+      if user && user.id == session[:user_id]
+        @work.update_attributes(media_params)
+        if @work.save
+          flash[:status] = :success
+          flash[:result_text] = "Successfully updated #{@media_category.singularize} #{@work.id}"
+          redirect_to work_path(@work)
+        else
+          flash.now[:status] = :failure
+          flash.now[:result_text] = "Could not update #{@media_category.singularize}"
+          flash.now[:messages] = @work.errors.messages
+          render :edit, status: :not_found
+        end
+      else
+        flash[:result_text] = "You can only update the media created by yourself."
+        redirect_to work_path(@work)
+      end
+    end
+
+    if @work.nil?
+      head :not_found
+      return
     end
   end
 
@@ -69,7 +83,7 @@ class WorksController < ApplicationController
     if login_user?
       user_id = @work.user_id
       user = User.find_by(id: user_id)
-      if user && user.id == session[id: user_id]
+      if user && user.id == session[:user_id]
         @work.destroy
         flash[:status] = :success
         flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
@@ -78,6 +92,11 @@ class WorksController < ApplicationController
         flash[:result_text] = "You can only delete the media created by yourself."
         redirect_to root_path
       end
+    end
+
+    if @work.nil?
+      head :not_found
+      return
     end
   end
 

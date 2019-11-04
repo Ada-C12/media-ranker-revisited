@@ -162,6 +162,7 @@ describe WorksController do
 
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
+      perform_login(users(:georgina))
       updates = { work: { title: "Dirty Computer" } }
 
       expect {
@@ -175,6 +176,7 @@ describe WorksController do
     end
 
     it "renders bad_request for bogus data" do
+      perform_login(users(:georgina))
       updates = { work: { title: nil } }
 
       expect {
@@ -187,6 +189,7 @@ describe WorksController do
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      perform_login(users(:georgina))
       bogus_id = existing_work.id
       existing_work.destroy
 
@@ -198,6 +201,7 @@ describe WorksController do
 
   describe "destroy" do
     it "succeeds for an extant work ID" do
+      perform_login(users(:georgina))
       expect {
         delete work_path(existing_work.id)
       }.must_change "Work.count", -1
@@ -215,6 +219,14 @@ describe WorksController do
       }.wont_change "Work.count"
 
       must_respond_with :not_found
+    end
+
+    it "can only destroy a work created by the logged user" do
+      perform_login(users(:georgina))
+      work = works(:album)
+      expect {
+        delete work_path(work.id)
+      }.must_change "Work.count", -1
     end
   end
 
