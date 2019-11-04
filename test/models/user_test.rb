@@ -17,6 +17,14 @@ describe User do
         work.must_be_kind_of Work
       end
     end
+
+    it "has a list of works" do
+      kari = users(:kari)
+      kari.must_respond_to :works
+      kari.works.each do |work|
+        work.must_be_kind_of Work
+      end
+    end
   end
 
   describe "validations" do
