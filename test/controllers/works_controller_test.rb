@@ -288,27 +288,27 @@ describe WorksController do
     end
   end
   
-  describe "wave 3 tests (to be folded into appropriate test blocks)" do
-    
-    
-    it "allows a logged-in user to access the works index page" do
-      user = User.first
-      perform_login(user)
-      
-      get works_path, params: {test_user_id: user.id}
-      
-      must_respond_with :success
-    end
-    
-    it "allows a logged-in user to access a work's show page" do
-      user = User.first
-      perform_login(user)
-      
-      work = Work.first
-      
-      get work_path(work.id), params: {test_user_id: user.id}
-      
-      must_respond_with :success
-    end
-  end
+  # describe "wave 3 tests (to be folded into appropriate test blocks)" do
+  ## these tests are now implemented in their appropriate test blocks above. ##
+  
+  #   it "allows a logged-in user to access the works index page" do
+  #     user = User.first
+  #     perform_login(user)
+  
+  #     get works_path, params: {test_user_id: user.id}
+  
+  #     must_respond_with :success
+  #   end
+  
+  #   it "allows a logged-in user to access a work's show page" do
+  #     user = User.first
+  #     perform_login(user)
+  
+  #     work = Work.first
+  
+  #     get work_path(work.id), params: {test_user_id: user.id}
+  
+  #     must_respond_with :success
+  #   end
+  # end
 end
