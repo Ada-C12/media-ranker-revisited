@@ -200,7 +200,9 @@ describe WorksController do
       end
       
       it "does not allow a logged-in user to edit a work that does not belong to them" do
-        not_your_work = Work.create(title: "Can't Touch This", category: "album")
+        user = users(:kari)
+        
+        not_your_work = Work.create(title: "Can't Touch This", category: "album", user_id: user.id)
         
         get edit_work_path(not_your_work.id)
         
@@ -262,7 +264,8 @@ describe WorksController do
       end
       
       it "does not allow a logged-in user to update a work that does not belong to them" do
-        not_your_work = Work.create(title: "Can't Touch This", category: "album")
+        user = users(:kari)
+        not_your_work = Work.create(title: "Can't Touch This", category: "album", user_id: user.id)
         existing_title = not_your_work.title        
         put work_path(not_your_work.id), params: { work: {title: "Not Touching You"}}
         
@@ -306,9 +309,10 @@ describe WorksController do
         must_respond_with :not_found
       end
       it "does not allow a logged-in user to destroy a work that does not belong to them" do
-        
+        user = users(:kari)
+        not_your_work = Work.create(title: "Can't Touch This", category: "album", user_id: user.id)
         expect {
-          delete work_path(existing_work.id)
+          delete work_path(not_your_work.id)
         }.wont_change "Work.count"
         
         must_respond_with :redirect
