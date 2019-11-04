@@ -2,6 +2,7 @@ require "test_helper"
 
 describe WorksController do
   let(:existing_work) { works(:album) }
+  let(:dan) { users(:dan) }
 
   describe "root" do
     it "succeeds with all media types" do
@@ -189,7 +190,12 @@ describe WorksController do
 
   describe "upvote" do
     it "redirects to the work page if no user is logged in" do
-      
+      perform_login(dan)
+      logout_path
+
+      post upvote_path(existing_work)
+      flash[:result_text].must_equal "You must log in to do that"
+      must_redirect_to work_path(existing_work)
     end
 
     it "redirects to the work page after the user has logged out" do
