@@ -28,14 +28,6 @@ describe UsersController do
       
       User.count.must_equal user_count      
     end
-    
-    it "will not login a user without the proper credentials" do
-      user = User.create(provider: "facebook", uid: "0", email: "email", name: "name", username: "username")
-      
-      perform_login(user)
-      
-      expect(session[:user_id]).must_equal nil
-    end
   end
   
   describe "logout" do
