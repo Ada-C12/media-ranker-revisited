@@ -23,6 +23,14 @@ class WorksController < ApplicationController
   end
 
   def new
+    @user = User.find_by(id: session[:user_id])
+
+    if @user.nil?
+    flash[:result_text] = "You must log in to do that"
+      redirect_to root_path
+      return
+    end
+
     @work = Work.new
   end
 
@@ -54,6 +62,13 @@ class WorksController < ApplicationController
   end
 
   def edit
+    @user = User.find_by(id: session[:user_id])
+
+    if @user.nil?
+    flash[:result_text] = "You must log in to do that"
+      redirect_to root_path
+      return
+    end
   end
 
   def update
@@ -71,6 +86,14 @@ class WorksController < ApplicationController
   end
 
   def destroy
+    @user = User.find_by(id: session[:user_id])
+
+    if @user.nil?
+    flash[:result_text] = "You must log in to do that"
+      redirect_to root_path
+      return
+    end
+    
     @work.destroy
     flash[:status] = :success
     flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"

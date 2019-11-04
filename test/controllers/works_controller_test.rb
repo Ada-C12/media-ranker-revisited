@@ -56,6 +56,39 @@ describe WorksController do
       end
     end
 
+    describe "new" do
+      it "redirects the user to the main page with error message" do
+        get new_work_path
+
+        expect(flash[:result_text]).must_equal "You must log in to do that"
+
+        must_respond_with :redirect
+        must_redirect_to root_path
+      end
+    end
+
+    describe "edit" do
+      it "redirects the user to the main page with error message" do
+        get edit_work_path(works(:album).id)
+
+        expect(flash[:result_text]).must_equal "You must log in to do that"
+
+        must_respond_with :redirect
+        must_redirect_to root_path
+      end
+    end
+
+    describe "destroy" do
+      it "redirects the user to the main page with error message" do
+        delete work_path(works(:album).id)
+
+        expect(flash[:result_text]).must_equal "You must log in to do that"
+
+        must_respond_with :redirect
+        must_redirect_to root_path
+      end
+    end
+
     describe "upvote" do
       it "redirects to the work page if no user is logged in" do
         work = works(:poodr)
