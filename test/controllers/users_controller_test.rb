@@ -36,7 +36,7 @@ describe UsersController do
   
   describe "authenticated user" do
     before do
-      perform_login(users(:dan))
+      perform_login
     end
     
     describe "logout" do

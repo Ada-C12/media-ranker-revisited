@@ -11,6 +11,14 @@ class WorksController < ApplicationController
   end
 
   def index
+    @user = User.find_by(id: session[:user_id])
+
+    if @user.nil?
+      flash[:result_text] = "You must log in to do that"
+      redirect_to root_path
+      return
+    end
+    
     @works_by_category = Work.to_category_hash
   end
 
@@ -34,6 +42,14 @@ class WorksController < ApplicationController
   end
 
   def show
+    @user = User.find_by(id: session[:user_id])
+
+    if @user.nil?
+      flash[:result_text] = "You must log in to do that"
+      redirect_to root_path
+      return
+    end
+    
     @votes = @work.votes.order(created_at: :desc)
   end
 
