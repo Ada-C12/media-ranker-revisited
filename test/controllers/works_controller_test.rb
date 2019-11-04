@@ -16,7 +16,6 @@ describe WorksController do
         must_respond_with :success
       end
     
-
       it "succeeds with one media type absent" do
         login
         only_book = works(:poodr)
@@ -39,7 +38,6 @@ describe WorksController do
       end
     end
   
-
     CATEGORIES = %w(albums books movies)
     INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
 
@@ -63,8 +61,6 @@ describe WorksController do
       end
     end
   
-
-
     describe "new" do
       it "succeeds" do
         login
@@ -151,8 +147,6 @@ describe WorksController do
       end
     end
   
-
-
     describe "update" do
       it "succeeds for valid data and an extant work ID" do
         login
@@ -192,8 +186,6 @@ describe WorksController do
       end
     end
   
-
-
     describe "destroy" do
       it "succeeds for an extant work ID" do
         login
