@@ -1,31 +1,30 @@
 require "test_helper"
-
+require "pry"
 describe UsersController do
 let(:dan) { users(:dan) }
+let(:natalie ) { User.new(username: "natalietapias", provider: "github",  name: "natalie", email: "nt@adadev.org", uid: 12345678) }
+      
 
-  describe 'authenticated' do
-      it "should log in an existing user" do
+  describe 'auth_callback' do
+    it "should log in an existing user" do
       start_count = User.count
-
-      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(dan))
-
-      get auth_callback_path(:github)
+      perform_login(dan)
 
       must_redirect_to root_path
-      session[:user_id].must_equal dan.id
+      session[:uid].must_equal dan.uid
       expect(start_count).must_equal User.count
     end
-
+      
     it "should create a new user" do
       start_count = User.count
-      natalie = User.new(provider: "github", uid: 12345678, email: "nt@adadev.org", name: "natalie", username: "natalietapias")
-
-      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(natalie))
+    
+      perform_login(natalie)
       
-      get auth_callback_path(:github)
+      expect(User.count).must_equal start_count + 1
+     
 
-      must_redirect_to root_path 
-      expect(User.count).must_equal (start_count + 1)
+      # must_redirect_to root_path 
+      # expect(User.count).must_equal (start_count + 1)
     end
 
     it "should flash error and redirect to root path if invalid user info provided" do
@@ -37,7 +36,7 @@ let(:dan) { users(:dan) }
       
       must_redirect_to root_path
       expect(flash[:error]).wont_be_nil
-      expect(flash[:user_id]).must_be_nil
+      expect(flash[:uid]).must_be_nil
       expect(start_count).must_equal User.count
     end
 
@@ -48,11 +47,11 @@ let(:dan) { users(:dan) }
 
         get auth_callback_path(:github)
         must_redirect_to root_path
-        session[:user_id].must_equal dan.id
+        session[:uid].must_equal dan.uid
 
         # log out
         delete logout_path
-        expect(session[:user_id]).must_be_nil
+        expect(session[:uid]).must_be_nil
         expect(flash[:success]).wont_be_nil
         must_redirect_to root_path
 
