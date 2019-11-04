@@ -190,6 +190,13 @@ describe WorksController do
 
   describe "upvote" do
     it "redirects to the work page if no user is logged in" do
+
+      post upvote_path(existing_work)
+      flash[:result_text].must_equal "You must log in to do that"
+      must_redirect_to work_path(existing_work)
+    end
+
+    it "redirects to the work page after the user has logged out" do
       perform_login(dan)
       logout_path
 
@@ -198,16 +205,31 @@ describe WorksController do
       must_redirect_to work_path(existing_work)
     end
 
-    it "redirects to the work page after the user has logged out" do
-      
-    end
-
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      
+      perform_login(users(:kari))
+      movie = works(:movie)
+
+      post upvote_path(movie)
+      must_respond_with :found
+      must_redirect_to work_path(movie)
+      flash[:result_text].wont_be_nil
+      flash[:status].wont_be_nil
     end
 
     it "redirects to the work page if the user has already voted for that work" do
+      perform_login(users(:kari))
+      movie = works(:movie)
+
+      post upvote_path(movie)
+      must_respond_with :found
+      must_redirect_to work_path(movie)
+      flash[:result_text].wont_be_nil
+      flash[:status].wont_be_nil
+
+      post upvote_path(movie)
       
+      flash[:status].must_equal :failure
+      must_redirect_to work_path(movie)
     end
   end
 end
