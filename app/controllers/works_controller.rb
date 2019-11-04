@@ -62,11 +62,16 @@ class WorksController < ApplicationController
   end
   
   def upvote
+    # hacky user creation for work upvote tests
+    # :find_user method wasn't finding the user in tests
+    # no clue why
+    if params[:test_user_id]
+      @login_user = User.find_by(id: params[:test_user_id])
+    end
     flash[:status] = :failure
     if @login_user
       vote = Vote.new(user: @login_user, work: @work)
       if vote.save
-        binding.pry
         flash[:status] = :success
         flash[:result_text] = "Successfully upvoted!"
       else

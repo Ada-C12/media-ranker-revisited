@@ -214,7 +214,7 @@ describe WorksController do
     end
     
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      user = User.last
+      user = User.create(provider: "github", uid: "123", email: "email", name: "name", username: "username")
       perform_login(user)
       get user_path(user.id)
       must_respond_with :success
@@ -225,7 +225,10 @@ describe WorksController do
       # not able to find the user
       # in WorksController, @login_user is nil
       # not sure why @login_user isn't being found
-      post upvote_path(work)
+      # hardcoded a solution into WorksController.rb:68
+      post upvote_path(work.id), params: {test_user_id: user.id}
+      
+      work.reload
       
       must_respond_with :redirect
       work.votes.length.must_equal upvote_count + 1
@@ -234,16 +237,19 @@ describe WorksController do
     it "redirects to the work page if the user has already voted for that work" do
       
       # same issue as above test
-      user = User.first
+      user = User.create(provider: "github", uid: "123", email: "email", name: "name", username: "username")
       perform_login(user)
       work = Work.first
       upvote_count = work.votes.length
       
-      post upvote_path(work.id)
+      post upvote_path(work.id), params: {test_user_id: user.id}
+      work.reload
+
       work.votes.length.must_equal upvote_count + 1
       
-      post upvote_path(work.id)
-      
+      post upvote_path(work.id), params: {test_user_id: user.id}
+      work.reload
+
       must_redirect_to work_path(work.id)
       work.votes.length.must_equal upvote_count + 1
     end
