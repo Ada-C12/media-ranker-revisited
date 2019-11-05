@@ -41,16 +41,15 @@ describe UsersController do
 
       delete logout_path
 
-      must_redirect_to root_path
       refute(session[:user_id])
-      assert(flash[:success] == "Successfully logged out!")
+      must_redirect_to root_path
+      
     end
 
     it "cannot logout when you aren't logged in" do
       delete logout_path
 
       must_redirect_to root_path
-      assert(flash[:error] == "You are not logged in")
     end
   end
 end

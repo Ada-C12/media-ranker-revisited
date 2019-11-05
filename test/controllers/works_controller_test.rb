@@ -2,6 +2,7 @@ require "test_helper"
 
 describe WorksController do
   let(:existing_work) { works(:album) }
+  let(:user) { users(:dan) }
 
   describe "root" do
     it "succeeds with all media types" do
@@ -35,12 +36,14 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      perform_login(user)
       get works_path
 
       must_respond_with :success
     end
 
     it "succeeds when there are no works" do
+      perform_login(user)
       Work.all do |work|
         work.destroy
       end
@@ -48,6 +51,12 @@ describe WorksController do
       get works_path
 
       must_respond_with :success
+    end
+
+    it "will be redirected to the mainpage if not logged in " do
+      get works_path
+
+      must_redirect_to root_path
     end
   end
 
@@ -97,18 +106,26 @@ describe WorksController do
 
   describe "show" do
     it "succeeds for an extant work ID" do
+      perform_login(user)
       get work_path(existing_work.id)
 
       must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      perform_login(user)
       destroyed_id = existing_work.id
       existing_work.destroy
 
       get work_path(destroyed_id)
 
       must_respond_with :not_found
+    end
+
+    it "will be redirected to the mainpage if not logged in " do
+      get work_path(existing_work.id)
+
+      must_redirect_to root_path
     end
   end
 
@@ -218,10 +235,8 @@ describe WorksController do
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-    
       user = users(:dan)
       perform_login(user)
-    
 
       expect {
         post upvote_path(existing_work.id)
