@@ -2,6 +2,7 @@ class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
   before_action :category_from_work, except: [:root, :index, :new, :create]
+  before_action :require_login , only: [:index, :show]
 
   def root
     @albums = Work.best_albums
@@ -19,38 +20,47 @@ class WorksController < ApplicationController
   end
 
   def create
-    @work = Work.new(media_params)
-    @media_category = @work.category
-    if @work.save
-      flash[:status] = :success
-      flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
-      redirect_to work_path(@work)
+    if current_user
+      @work = Work.new(media_params)
+      @media_category = @work.category
+      if @work.save
+        flash[:status] = :success
+        flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
+        redirect_to work_path(@work)
+      else
+        flash[:status] = :failure
+        flash[:result_text] = "Could not create #{@media_category.singularize}"
+        flash[:messages] = @work.errors.messages
+        render :new, status: :bad_request
+      end
     else
-      flash[:status] = :failure
-      flash[:result_text] = "Could not create #{@media_category.singularize}"
-      flash[:messages] = @work.errors.messages
+      flash[:result_text] = "You must log in to view that"
       render :new, status: :bad_request
     end
   end
 
   def show
-    @votes = @work.votes.order(created_at: :desc)
+    @votes = @work.votes.order(created_at: :desc) 
   end
 
   def edit
   end
 
   def update
-    @work.update_attributes(media_params)
-    if @work.save
-      flash[:status] = :success
-      flash[:result_text] = "Successfully updated #{@media_category.singularize} #{@work.id}"
-      redirect_to work_path(@work)
+    if current_user
+      @work.update_attributes(media_params)
+      if @work.save
+        flash[:status] = :success
+        flash[:result_text] = "Successfully updated #{@media_category.singularize} #{@work.id}"
+        redirect_to work_path(@work)
+      else
+        flash.now[:status] = :failure
+        flash.now[:result_text] = "Could not update #{@media_category.singularize}"
+        flash.now[:messages] = @work.errors.messages
+        render :edit, status: :not_found
+      end
     else
-      flash.now[:status] = :failure
-      flash.now[:result_text] = "Could not update #{@media_category.singularize}"
-      flash.now[:messages] = @work.errors.messages
-      render :edit, status: :not_found
+        flash[:error] = "You must be logged in to do that"
     end
   end
 
@@ -63,8 +73,8 @@ class WorksController < ApplicationController
 
   def upvote
     flash[:status] = :failure
-    if @login_user
-      vote = Vote.new(user: @login_user, work: @work)
+    if current_user
+      vote = Vote.new(user: @user.id, work: @work)
       if vote.save
         flash[:status] = :success
         flash[:result_text] = "Successfully upvoted!"
@@ -91,5 +101,21 @@ class WorksController < ApplicationController
     @work = Work.find_by(id: params[:id])
     render_404 unless @work
     @media_category = @work.category.downcase.pluralize
+  end
+
+
+  def current_user
+    @user ||= User.find(session[:user_id]) if session[:user_id]
+  end
+
+  def user_params
+    return params.require(:user).permit(:name, :email)
+  end
+
+  def require_login
+    if current_user.nil?
+      flash[:result_text] = "You must log in to view that page"
+      return redirect_to root_path
+    end
   end
 end

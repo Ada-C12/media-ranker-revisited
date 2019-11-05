@@ -6,7 +6,8 @@
     <%= text_field_tag :username, nil, class: "form-control" %>
   </div>
   <div class="form-group">
-    <%= submit_tag "Log In", class: "btn btn-primary" %>
+    <%#= submit_tag "Log In", class: "btn btn-primary" %>
+    <%= link_to "Login with GitHub", github_login_path %>
   </div>
 <% end %>
 
