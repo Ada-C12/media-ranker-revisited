@@ -10,10 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_21_222708) do
+ActiveRecord::Schema.define(version: 2019_11_04_222118) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "books_genres_joins", force: :cascade do |t|
+    t.bigint "book_id"
+    t.bigint "genre_id"
+    t.index ["book_id"], name: "index_books_genres_joins_on_book_id"
+    t.index ["genre_id"], name: "index_books_genres_joins_on_genre_id"
+  end
+
+  create_table "genres", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "username"
@@ -21,9 +34,7 @@ ActiveRecord::Schema.define(version: 2019_10_21_222708) do
     t.datetime "updated_at", null: false
     t.integer "uid"
     t.string "provider"
-    t.string "name"
     t.string "email"
-    t.string "nickname"
   end
 
   create_table "votes", force: :cascade do |t|
