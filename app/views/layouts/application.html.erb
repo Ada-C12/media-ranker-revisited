@@ -63,6 +63,28 @@
     </section>
   <% end %>
 
+  <section class="flash">
+    <% flash.each do |name, message| %>
+      <% if name == "success" %>
+        <div class="alert alert-success" role="alert" class="<%= name %>"><%= message %></div>
+      <% elsif name == "error"%>
+        <div class="alert alert-danger" role="alert" class="<%= name %>"><%= message %></div>
+      <% elsif name == "message"%>
+        <div class="alert alert-warning" role="alert" class="<%= name %>"><%= message %></div>
+      <% elsif name == "errors" %>
+        <div class="alert alert-warning" role="alert" class="<%= name %>">
+          <h4> Requirement Errors </h4>
+          <% message.each do |column, error| %>
+            <div> <strong> <%= column.capitalize %> </strong> 
+              <%= error.join(', ') %>
+            </div> 
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </section>
+  
+  
   <main>
     <%= yield %>
   </main>
