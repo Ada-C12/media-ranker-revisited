@@ -33,22 +33,15 @@
         </li>
       </ul>
       <ul class="nav app-header__user-nav-container">
-        <% if @login_user %>
-
-        <li class="nav-item app-header__nav_item">
-          <%= link_to "Logged in as #{@login_user.username}", user_path(@login_user), class: "btn btn-primary" %>
-        </li>
-        <li class="nav-item app-header__nav_item">
-          <%= link_to "Log Out", logout_path, method: :post, class: "btn btn-primary" %>
-        </li>
-
+        <% if session[:user_id] %>
+          <li class="nav-item app-header__nav_item">
+          <%= link_to "Log Out", logout_path, method: "delete", class: "btn btn-primary" %>
+          </li>
         <% else %>
-
-        <li class="nav-item app-header__nav_item">
-          <%= link_to "Log In", login_path, class: "btn btn-primary" %>
-        </li>
+          <li class="nav-item app-header__nav_item">
+          <%= link_to "Login with Github!", github_login_path, class: "btn btn-primary" %>        
+          </li>
         <% end %>
-
       </ul>
     </nav>
   </header>
@@ -70,6 +63,28 @@
     </section>
   <% end %>
 
+  <section class="flash">
+    <% flash.each do |name, message| %>
+      <% if name == "success" %>
+        <div class="alert alert-success" role="alert" class="<%= name %>"><%= message %></div>
+      <% elsif name == "error"%>
+        <div class="alert alert-danger" role="alert" class="<%= name %>"><%= message %></div>
+      <% elsif name == "message"%>
+        <div class="alert alert-warning" role="alert" class="<%= name %>"><%= message %></div>
+      <% elsif name == "errors" %>
+        <div class="alert alert-warning" role="alert" class="<%= name %>">
+          <h4> Requirement Errors </h4>
+          <% message.each do |column, error| %>
+            <div> <strong> <%= column.capitalize %> </strong> 
+              <%= error.join(', ') %>
+            </div> 
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </section>
+  
+  
   <main>
     <%= yield %>
   </main>
