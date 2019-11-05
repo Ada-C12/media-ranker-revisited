@@ -9,15 +9,15 @@ describe UsersController do
       
       # Get a user from the fixtures
       user = users(:kari)
-      
+      perform_login(user)
       # Tell OmniAuth to use this user's info when it sees
       # an auth callback from github
-      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
+      # OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
       
       # Send a login request for that user
       # Note that we're using the named path for the callback, as defined
       # in the `as:` clause in `config/routes.rb`
-      get auth_callback_path(:github)
+      # get auth_callback_path(:github)
       
       must_redirect_to root_path
       
@@ -29,27 +29,28 @@ describe UsersController do
     end
     
     it "creates an account for a new user and redirects to the root route" do
-      new_user = users(:kari)
-      new_user.uid = 420
+      start_count = User.count
+      new_user = User.new(provider:"github", uid: 420, name: "new_suer", email: "new_user@gmail.com")     
       
       OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(new_user))
-      expect{ get auth_callback_path(:github) }.must_change "User.count", 1
+      get auth_callback_path(:github) 
       
-      must_redirect_to :root_path
+      must_redirect_to root_path
+      (User.count).must_equal start_count + 1
+      (session[:user_id]).must_equal User.last.id
     end
     
     it "redirects to the login route if given invalid user data" do
       new_user = users(:kari)
-      new_user.uid = nil
+      new_user.name = nil
       
       OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(new_user))
       expect{ get auth_callback_path(:github) }.wont_change "User.count"
       
-      must_redirect_to :root_path
+      must_redirect_to root_path
       
     end
   end
   
 end
 
-#creates a new user?

@@ -35,12 +35,32 @@ describe WorksController do
   
   describe "index" do
     it "succeeds when there are works" do
+      
       get works_path
       
       must_respond_with :success
     end
     
     it "succeeds when there are no works" do
+      
+      Work.all do |work|
+        work.destroy
+      end
+      
+      get works_path
+      
+      must_respond_with :success
+    end
+    
+    it "sends a redirect for non-signed in users" do
+      gets works_path
+      must_redirect_to root_path
+    end
+    
+    it "responds with a success if a user in logged in without works" do
+      user = users(:kari)
+      perform_login(user)
+      
       Work.all do |work|
         work.destroy
       end
@@ -97,6 +117,8 @@ describe WorksController do
   
   describe "show" do
     it "succeeds for an extant work ID" do
+      user = users(:kari)
+      perform_login(user)
       get work_path(existing_work.id)
       
       must_respond_with :success
@@ -198,7 +220,8 @@ describe WorksController do
     
     it "redirects to the work page after the user has logged out" do
       user = users(:kari)
-      complete_login(user)
+      
+      perform_login(user)
       delete logout_path
       
       expect {
@@ -209,7 +232,7 @@ describe WorksController do
     
     it "succeeds for a logged-in user and a fresh user-vote pair" do
       user = users(:kari)
-      complete_login(user)
+      perform_login(user)
       delete logout_path
       
       expect {
@@ -221,9 +244,11 @@ describe WorksController do
     
     it "redirects to the work page if the user has already voted for that work" do
       user = users(:kari)
-      complete_login(user)
+      perform_login(user)
       
-      expect { post upvote_path(existing_work) }.wont_change "existing work.votes.count"
+      vote = Vote.new(user: user, work: existing_work)
+      
+      expect { post upvote_path(existing_work) }.wont_change "existing_work.votes.count"
       
       must_redirect_to work_path(existing_work)
     end

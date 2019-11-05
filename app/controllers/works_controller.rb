@@ -99,7 +99,7 @@ class WorksController < ApplicationController
     @user = User.find_by(id: session[:user_id])
     
     if user.nil?
-      flash[:error] = "Please log-in first"
+      flash[:error] = "Please log-in!"
       return redirect_to root_path
     end
   end
