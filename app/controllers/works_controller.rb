@@ -1,6 +1,6 @@
 class WorksController < ApplicationController
   before_action :category_from_work, except: [:root, :index, :new, :create]
-  skip_before_action :require_login, except: [:upvote]
+  skip_before_action :require_login, only: [:root]
   
   def root
     @albums = Work.best_albums

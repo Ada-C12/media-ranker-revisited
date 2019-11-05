@@ -23,7 +23,7 @@ describe UsersController do
 
       expect {
         perform_login(user)
-      }.must_change "User.count"
+      }.must_change "User.count", 1
 
       find_user = User.find_by(name: user.name)
 
