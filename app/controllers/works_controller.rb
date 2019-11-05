@@ -74,23 +74,22 @@ class WorksController < ApplicationController
       end
     else
       flash[:result_text] = "You must log in to do that"
-      end
-      
-      # Refresh the page to show either the updated vote count
-      # or the error message
-      redirect_back fallback_location: work_path(@work)
     end
     
-    private
-    
-    def media_params
-      params.require(:work).permit(:title, :category, :creator, :description, :publication_year)
-    end
-    
-    def category_from_work
-      @work = Work.find_by(id: params[:id])
-      render_404 unless @work
-      @media_category = @work.category.downcase.pluralize
-    end
+    # Refresh the page to show either the updated vote count
+    # or the error message
+    redirect_back fallback_location: work_path(@work)
   end
   
+  private
+  
+  def media_params
+    params.require(:work).permit(:title, :category, :creator, :description, :publication_year)
+  end
+  
+  def category_from_work
+    @work = Work.find_by(id: params[:id])
+    render_404 unless @work
+    @media_category = @work.category.downcase.pluralize
+  end
+end

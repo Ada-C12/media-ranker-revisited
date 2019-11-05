@@ -37,7 +37,7 @@ class ActiveSupport::TestCase
       uid: user.uid,
       info: {
         email: user.email,
-        nickname: user.name
+        nickname: user.username
       }
     }
   end
@@ -48,7 +48,6 @@ class ActiveSupport::TestCase
     OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
     get auth_callback_path(:github)
     
-    expect(session[:user_id]).must_equal user.id
     
     return user
   end
