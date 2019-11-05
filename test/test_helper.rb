@@ -28,13 +28,13 @@ class ActiveSupport::TestCase
   end
 
   def mock_gh_auth_hash(user)
-    return{
+    return {
       provider: user.provider,
       uid: user.uid,
       info: {
         username: user.username,
-        name: user.name      
-        email: user.email,
+        name: user.name,    
+        email: user.email
       }
     }
   end
@@ -46,4 +46,5 @@ class ActiveSupport::TestCase
     get auth_callback_path(:github)
 
     return user
+  end
 end
