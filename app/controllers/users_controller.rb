@@ -1,6 +1,13 @@
 class UsersController < ApplicationController
   def index
-    @users = User.all
+    if @login_user
+      @users = User.all
+      return
+    else
+      flash[:error] = "You need to log in to proceed."
+      redirect_to root_path
+      return
+    end
   end
   
   def show

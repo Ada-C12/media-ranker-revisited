@@ -22,12 +22,19 @@ class WorksController < ApplicationController
   end 
   
   def new
-    @work = Work.new
-  end
+    if @login_user
+      @work = Work.new
+      return
+    else
+      flash[:error] = "A guest cannot create a work."
+      redirect_to root_path
+    end
+  end 
   
   def create
     @work = Work.new(media_params)
     @media_category = @work.category
+    
     if @work.save
       flash[:status] = :success
       flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
@@ -52,7 +59,11 @@ class WorksController < ApplicationController
   end 
   
   def edit
-  end
+    if !@login_user 
+      flash[:error] = "A guest cannot edit a work."
+      redirect_to root_path      
+    end
+  end 
   
   def update
     @work.update_attributes(media_params)
@@ -69,10 +80,14 @@ class WorksController < ApplicationController
   end
   
   def destroy
-    @work.destroy
-    flash[:status] = :success
-    flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
-    redirect_to root_path
+    if @login_user
+      @work.destroy
+      flash[:status] = :success
+      flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
+      redirect_to root_path
+    else
+      flash[:result_text] = "Could not destroy #{@media_category.singularize} #{@work.id}"
+    end 
   end
   
   def upvote
