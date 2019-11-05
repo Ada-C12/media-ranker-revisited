@@ -188,20 +188,43 @@ describe WorksController do
   end
 
   describe "upvote" do
-    it "redirects to the work page if no user is logged in" do
-      skip
+    before do
+      # valid login with valid user fixture
+      dan = users(:dan)
+      perform_gh_login(dan)
+    end
+    it "redirects to the work page if no user is logged in, leaving vote_count untouched" do
+      post logout_path
+
+      expect{
+        post upvote_path(existing_work.id)
+      }.wont_change "existing_work.vote_count"
+
+      must_redirect_to work_path(existing_work.id)
+
     end
 
     it "redirects to the work page after the user has logged out" do
       skip
+      # I don't understand the difference between this test and the first one ...
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      skip
+      unvoted_for_work = works(:poodr)
+      expect{
+        post upvote_path(unvoted_for_work.id)
+      }.must_change "Vote.count", 1
+
+      must_redirect_to work_path(unvoted_for_work.id)
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      skip
+      # second try
+      expect{
+        post upvote_path(existing_work.id)
+      }.wont_change "Vote.count"
+
+      must_redirect_to work_path(existing_work.id)
     end
   end
 end

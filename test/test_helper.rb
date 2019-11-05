@@ -32,7 +32,7 @@ class ActiveSupport::TestCase
       provider: user.provider,
       uid: user.uid,
       info: {
-        username: user.username,
+        nickname: user.username,
         name: user.name,    
         email: user.email
       }
@@ -41,7 +41,6 @@ class ActiveSupport::TestCase
 
   def perform_gh_login(user = nil)
     user ||= User.first
-
     OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_gh_auth_hash(user))
     get auth_callback_path(:github)
 
