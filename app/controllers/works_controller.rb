@@ -11,7 +11,6 @@ class WorksController < ApplicationController
   end
   
   def index
-    find_user
     if @login_user
       @works_by_category = Work.to_category_hash
     else
@@ -21,7 +20,6 @@ class WorksController < ApplicationController
   end
   
   def new
-    find_user
     if @login_user
       @work = Work.new
     else
@@ -46,7 +44,6 @@ class WorksController < ApplicationController
   end
   
   def show
-    find_user
     if @login_user
       @votes = @work.votes.order(created_at: :desc)
     else
