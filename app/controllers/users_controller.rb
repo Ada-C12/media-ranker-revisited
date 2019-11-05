@@ -10,15 +10,20 @@ class UsersController < ApplicationController
 
   def create
     auth_hash = request.env["omniauth.auth"]
-    
-    user = User.find_by(uid: auth_hash[:uid], provider: "github")
+
+    user = User.find_by(uid: auth_hash[:uid])
   
     if user
       # User was found in the database
       flash[:success] = "Logged in as returning user #{user.name}"
     else
       # User doesn't match anything in the DB
-      user = User.build_from_github(auth_hash)
+      if auth_hash[:provider] == "github"
+        user = User.build_from_github(auth_hash)
+      elsif auth_hash[:provider] == "facebook"
+        user = User.build_from_facebook(auth_hash)
+      end
+      
       if user.save
         flash[:success] = "Logged in as new user #{user.name}"
       else

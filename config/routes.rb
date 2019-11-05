@@ -10,4 +10,5 @@ Rails.application.routes.draw do
   get "/auth/:provider/callback", to: "users#create", as: "auth_callback"
   delete "/logout", to: "users#destroy", as: "logout"
 
+  get "/auth/facebook", as: "facebook_login"
 end
