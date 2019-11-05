@@ -197,7 +197,7 @@ describe WorksController do
     end
     
     it "redirects to the work page after the user has logged out" do
-      user = user(:kari)
+      user = users(:kari)
       complete_login(user)
       delete logout_path
       
@@ -208,7 +208,7 @@ describe WorksController do
     end
     
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      user = user(:kari)
+      user = users(:kari)
       complete_login(user)
       delete logout_path
       
@@ -220,7 +220,7 @@ describe WorksController do
     end
     
     it "redirects to the work page if the user has already voted for that work" do
-      user = user(:kari)
+      user = users(:kari)
       complete_login(user)
       
       expect { post upvote_path(existing_work) }.wont_change "existing work.votes.count"

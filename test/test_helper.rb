@@ -42,7 +42,7 @@ class ActiveSupport::TestCase
     }
   end
   
-  def complete_login(user = nil)
+  def perform_login(user = nil)
     user ||= users(:kari)
     
     OmniAuth.config.mock_auth[:github] =

@@ -44,24 +44,21 @@ class UsersController < ApplicationController
     else
       # User doesn't match anything in the DB
       # TODO: Attempt to create a new user
-      user = User.build_from_github(auth_hash)
-    end
-    
-    if user.save
-      flash[:status] = :success
-      flash[:result_text] = "Logged in as new user #{user.username}"
-    else
-      # Couldn't save the user for some reason. If we
-      # hit this it probably means there's a bug with the
-      # way we've configured GitHub. Our strategy will
-      # be to display error messages to make future
-      # debugging easier.
-      flash[:status] = :error
-      flash[:result_text] = "Could not create new user account: #{user.errors.messages}"
-      return redirect_to root_path
-    end
-    
-    
+      user = User.build_from_github(auth_hash)    
+      if user.save
+        flash[:status] = :success
+        flash[:result_text] = "Logged in as new user #{user.username}"
+      else
+        # Couldn't save the user for some reason. If we
+        # hit this it probably means there's a bug with the
+        # way we've configured GitHub. Our strategy will
+        # be to display error messages to make future
+        # debugging easier.
+        flash[:status] = :error
+        flash[:result_text] = "Could not create new user account: #{user.errors.messages}"
+        return redirect_to root_path
+      end
+    end  
     
     session[:user_id] = user.id
     redirect_to root_path
