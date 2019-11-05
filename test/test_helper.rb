@@ -36,14 +36,14 @@ class ActiveSupport::TestCase
     return{
              provider: user.provider,
              uid: user.uid,
-             info: {
+             info:{
                email: user.email,
-               name: user.name
+               name: user.name,
              }
            }
   end
 
-  def perform_login(user = nil)
+  def perform_login(user)
     user ||= User.first
 
     OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))

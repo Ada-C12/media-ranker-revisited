@@ -1,5 +1,12 @@
 dan:
-  name: dan
-  uid: 12341
-  email: test@adadevelopers.org
+  username: dan
+
+kari:
+  username: kari
+
+fakeperson:
+  username: nobody
+  name: notreal
   provider: github
+  email: testemail@gmail.com
+  uid: 23412
