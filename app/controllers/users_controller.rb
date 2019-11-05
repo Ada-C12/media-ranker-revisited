@@ -48,17 +48,17 @@ class UsersController < ApplicationController
   # end
 
   # def login
-  #   username = params[:username]
-  #   if username and user = User.find_by(username: username)
+  #   name = params[:name]
+  #   if name and user = User.find_by(name: name)
   #     session[:user_id] = user.id
   #     flash[:status] = :success
-  #     flash[:result_text] = "Successfully logged in as existing user #{user.username}"
+  #     flash[:result_text] = "Successfully logged in as existing user #{user.name}"
   #   else
-  #     user = User.new(username: username)
+  #     user = User.new(name: name)
   #     if user.save
   #       session[:user_id] = user.id
   #       flash[:status] = :success
-  #       flash[:result_text] = "Successfully created new user #{user.username} with ID #{user.id}"
+  #       flash[:result_text] = "Successfully created new user #{user.name} with ID #{user.id}"
   #     else
   #       flash.now[:status] = :failure
   #       flash.now[:result_text] = "Could not log in"
