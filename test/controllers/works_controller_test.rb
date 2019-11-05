@@ -207,7 +207,7 @@ describe WorksController do
     end
 
     describe 'logged in' do
-      it "succeeds for an extant work ID" do
+      it "succeeds for an existing work ID" do
         get edit_work_path(existing_work.id)
   
         must_respond_with :success
@@ -240,6 +240,16 @@ describe WorksController do
     end
 
     describe 'logged in' do
+      it "redirects and throws error message for an existing work ID which doesn't belong to user" do
+        work = works(:poodr)
+        updates = { work: { title: "Dirty Computer" } }
+        put work_path(work), params: updates
+        
+        assert_equal :failure, flash[:status]
+        assert_equal "You can't update a work you don't own.", flash[:result_text]
+        must_redirect_to work_path(work)
+      end
+
       it "succeeds for valid data and an extant work ID" do
         updates = { work: { title: "Dirty Computer" } }
 
@@ -291,6 +301,17 @@ describe WorksController do
     end
 
     describe 'logged in' do
+      it "redirects and throws error message for an existing work ID which doesn't belong to user" do
+        work = works(:poodr)
+        expect {
+          delete work_path(work.id)
+        }.wont_change "Work.count"
+
+        assert_equal :failure, flash[:status]
+        assert_equal "You can't delete a work you don't own.", flash[:result_text]
+        must_redirect_to work_path(work.id)
+      end
+      
       it "succeeds for an extant work ID" do
         expect {
           delete work_path(existing_work.id)
@@ -348,6 +369,21 @@ describe WorksController do
     end
 
     describe 'logged in' do
+      it 'redirects and displays error if voting on your own work' do
+        user = users(:dan)
+        dan_work = works(:album)
+        perform_login(user)
+
+        expect {
+          post upvote_path(dan_work.id)
+        }.wont_change "Vote.count"
+
+
+        assert_equal :failure, flash[:status]
+        assert_equal "You can't upvote your own work.", flash[:result_text]
+        must_redirect_to work_path(dan_work.id)
+      end
+
       it "succeeds for a logged-in user and a fresh user-vote pair" do
         work = works(:another_album)
         user = users(:kari)

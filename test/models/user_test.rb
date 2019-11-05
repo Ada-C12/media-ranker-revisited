@@ -10,6 +10,14 @@ describe User do
       end
     end
 
+    it "has a list of works" do
+      dan = users(:dan)
+      dan.must_respond_to :works
+      dan.works.each do |work|
+        work.must_be_kind_of Work
+      end
+    end
+
     it "has a list of ranked works" do
       dan = users(:dan)
       dan.must_respond_to :ranked_works

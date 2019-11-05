@@ -21,6 +21,7 @@ poodr:
   description: programming!
   publication_year: 2012
   category: book
+  user: kari
 
 movie:
   title: test movie - has only required fields
