@@ -34,7 +34,7 @@ describe UsersController do
   
   describe "logout" do
     it "will logout logged in user " do
-      delete logout_path
+      post logout_path
       expect(flash[:result_text]).must_equal "Successfully logged out"
       must_respond_with :redirect
       must_redirect_to root_path
