@@ -15,6 +15,7 @@ describe UsersController do
     it "creates an account for a new user and redirects to the root route" do
       start_count = User.count
       user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+      user.save
       
       perform_login(user)
       

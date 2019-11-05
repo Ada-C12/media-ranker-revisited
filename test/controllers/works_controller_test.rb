@@ -146,7 +146,6 @@ describe WorksController do
   }.wont_change "Work.count"
   
   work = Work.find_by(id: existing_work.id)
-  
   must_respond_with :not_found
 end
 
@@ -155,7 +154,6 @@ it "renders 404 not_found for a bogus work ID" do
   existing_work.destroy
   
   put work_path(bogus_id), params: { work: { title: "Test Title" } }
-  
   must_respond_with :not_found
 end
 end
@@ -181,26 +179,45 @@ it "renders 404 not_found and does not update the DB for a bogus work ID" do
 must_respond_with :not_found
 end
 end
+end
 
 describe "upvote" do
+  let(:existing_work) { works(:album) }
+  
   it "redirects to the work page if no user is logged in" do
-    skip
-  end
+    expect {
+    post upvote_path(existing_work.id)
+  }.wont_change "Vote.count"
   
-  it "redirects to the work page after the user has logged out" do
-    skip
-  end
+  must_redirect_to work_path(existing_work.id)
+  expect(flash[:result_text]).must_equal "Could not upvote"
+end
+
+it "redirects to the work page after the user has logged out" do
+  user = users(:kari)
+  perform_login(user)
+  session[:user_id].must_equal user.id
   
-  it "succeeds for a logged-in user and a fresh user-vote pair" do
-    skip
-  end
+  delete logout_path
+  session[:user_id].must_be_nil
   
-  it "redirects to the work page if the user has already voted for that work" do
-    skip
-  end
+  expect {
+  post upvote_path(existing_work.id)
+}.wont_change "Vote.count"
+
+must_redirect_to work_path(existing_work.id)
+expect(flash[:result_text]).must_equal "You must log in to do that"
+end
+
+it "succeeds for a logged-in user and a fresh user-vote pair" do
+  skip
+end
+
+it "redirects to the work page if the user has already voted for that work" do
+  skip
+end
 end
 end 
-end
 
 describe "guest users" do
   let(:existing_work) { works(:album) }
