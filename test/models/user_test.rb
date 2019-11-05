@@ -3,15 +3,15 @@ require "test_helper"
 describe User do
   describe "relations" do
     it "has a list of votes" do
-      dan = users(:dan)
-      dan.must_respond_to :votes
-      dan.votes.each do |vote|
+      user = users(:ada)
+      user.must_respond_to :votes
+      user.votes.each do |vote|
         vote.must_be_kind_of Vote
       end
     end
 
     it "has a list of ranked works" do
-      dan = users(:dan)
+      dan = users(:ada)
       dan.must_respond_to :ranked_works
       dan.ranked_works.each do |work|
         work.must_be_kind_of Work
@@ -27,16 +27,10 @@ describe User do
     end
 
     it "requires a unique name" do
-      name = "test name"
-      user1 = User.new(name: name)
-
-      # This must go through, so we use create!
-      user1.save!
-
-      user2 = User.new(name: name)
-      result = user2.save
-      result.must_equal false
-      user2.errors.messages.must_include :name
+      user = users(:ada)
+      new_user = User.new(name: 'ada759', uid: 1234, email: "ada@com", provider: 'github')
+      new_user.save.must_equal false
+      new_user.errors.messages.must_include :name
     end
   end
 end

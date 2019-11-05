@@ -18,8 +18,8 @@ describe Vote do
   describe "validations" do
     let (:user1) { users(:ada) }
     let (:user2) { users(:betsy)}
-    let (:work1) { works(:album) }
-    let (:work2) { works(:another_album)}
+    let (:work1) { works(:movie) }
+    let (:work2) { works(:poodr)}
 
     it "allows one user to vote for multiple works" do
       vote1 = Vote.new(user: user1, work: work1)

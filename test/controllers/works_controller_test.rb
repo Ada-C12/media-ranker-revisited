@@ -98,7 +98,7 @@ describe WorksController do
   describe "show" do
     it "succeeds for an extant work ID" do
       get work_path(existing_work.id)
-
+      
       must_respond_with :success
     end
 
