@@ -11,10 +11,10 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema.define(version: 2019_11_05_043616) do
-
+  
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-
+  
   create_table "users", force: :cascade do |t|
     t.string "username"
     t.datetime "created_at", null: false
@@ -24,7 +24,7 @@ ActiveRecord::Schema.define(version: 2019_11_05_043616) do
     t.string "name"
     t.string "email"
   end
-
+  
   create_table "votes", force: :cascade do |t|
     t.integer "user_id"
     t.integer "work_id"
@@ -33,7 +33,7 @@ ActiveRecord::Schema.define(version: 2019_11_05_043616) do
     t.index ["user_id"], name: "index_votes_on_user_id"
     t.index ["work_id"], name: "index_votes_on_work_id"
   end
-
+  
   create_table "works", force: :cascade do |t|
     t.string "title"
     t.string "creator"
@@ -44,7 +44,7 @@ ActiveRecord::Schema.define(version: 2019_11_05_043616) do
     t.integer "vote_count", default: 0
     t.integer "publication_year"
   end
-
+  
   add_foreign_key "votes", "users"
   add_foreign_key "votes", "works"
 end
