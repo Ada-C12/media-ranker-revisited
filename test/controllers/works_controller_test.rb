@@ -34,13 +34,19 @@ describe WorksController do
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
   
   describe "index" do
-    it "succeeds when there are works" do
+    it "succeeds when there are works and a user is logged in" do
+      user = User.first
+      perform_login(user)
+      
       get works_path
       
       must_respond_with :success
     end
     
     it "succeeds when there are no works" do
+      user = User.first
+      perform_login(user)
+      
       Work.all do |work|
         work.destroy
       end
@@ -49,10 +55,27 @@ describe WorksController do
       
       must_respond_with :success
     end
+    
+    it "doesn't allow a guest user to access and redirects to main page" do
+      get works_path 
+      
+      must_respond_with :redirect
+      _(flash[:result_text]).must_equal "You must be logged in to access that page."
+    end
   end
   
   describe "new" do
-    it "succeeds" do
+    it "doesn't allow a guest user to access and redirects to main page" do
+      get new_work_path
+      
+      must_respond_with :redirect
+      (flash[:result_text]).must_equal "You must be logged in to access that page."
+    end
+    
+    it "allows a logged in user to access" do
+      user = User.first
+      perform_login(user)
+      
       get new_work_path
       
       must_respond_with :success
@@ -96,19 +119,32 @@ describe WorksController do
   end
   
   describe "show" do
-    it "succeeds for an extant work ID" do
+    it "succeeds for an extant work ID and a user is logged in" do
+      user = User.first
+      perform_login(user)
+      
       get work_path(existing_work.id)
       
       must_respond_with :success
     end
     
-    it "renders 404 not_found for a bogus work ID" do
+    it "renders 404 not_found for a bogus work ID and a user is logged in" do
+      user = User.first
+      perform_login(user)
+      
       destroyed_id = existing_work.id
       existing_work.destroy
       
       get work_path(destroyed_id)
       
       must_respond_with :not_found
+    end
+    
+    it "doesn't allow a guest user to access and redirects to main page" do
+      get work_path(existing_work.id)
+      
+      must_respond_with :redirect
+      (flash[:result_text]).must_equal "You must be logged in to access that page."
     end
   end
   
