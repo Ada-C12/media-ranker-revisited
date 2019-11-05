@@ -11,11 +11,21 @@ class WorksController < ApplicationController
   end
   
   def index
-    @works_by_category = Work.to_category_hash
+    if @login_user
+      @works_by_category = Work.to_category_hash
+    else
+      flash[:result_text] = "You must log in to do that"
+      redirect_to root_path
+    end
   end
   
   def new
-    @work = Work.new
+    if @login_user
+      @work = Work.new
+    else
+      flash[:result_text] = "You Must Be Logged In To Do THAT"
+      redirect_to root_path
+    end
   end
   
   def create

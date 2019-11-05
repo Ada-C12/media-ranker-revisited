@@ -35,12 +35,24 @@ describe WorksController do
   
   describe "index" do
     it "succeeds when there are works" do
+      user = users(:kari)
+      perform_login(user)
+      
       get works_path
       
       must_respond_with :success
     end
     
+    it "will not succeed when there are no works" do
+      get works_path
+      
+      must_redirect_to root_path
+    end
+    
     it "succeeds when there are no works" do
+      user = users(:kari)
+      perform_login(user)
+      
       Work.all do |work|
         work.destroy
       end
@@ -53,9 +65,18 @@ describe WorksController do
   
   describe "new" do
     it "succeeds" do
+      
+      user = users(:kari)
+      perform_login(user)
+      
       get new_work_path
       
       must_respond_with :success
+    end
+    
+    it "shant succeed" do
+      get new_work_path 
+      must_redirect_to root_path
     end
   end
   
