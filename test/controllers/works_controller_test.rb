@@ -233,8 +233,7 @@ describe WorksController do
         post upvote_path(new_work)
 
         must_respond_with :redirect
-        must_redirect_to work_path(new_work.id)
-       
+        must_redirect_to work_path(new_work.id)       
       end
 
       it "doesn't increase vote count when unlogged user tries to vote" do
@@ -248,8 +247,7 @@ describe WorksController do
 
       it "shows failure message if unlogged user tries to vote" do
         new_work = works(:album)
-        delete logout_path
-        
+      
         post upvote_path(new_work)
         
         expect(flash[:result_text]).must_equal "You must log in to do that"
