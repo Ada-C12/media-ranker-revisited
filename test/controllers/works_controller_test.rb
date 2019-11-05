@@ -210,11 +210,33 @@ expect(flash[:result_text]).must_equal "You must log in to do that"
 end
 
 it "succeeds for a logged-in user and a fresh user-vote pair" do
-  skip
+  Vote.delete_all
+  user = users(:kari)
+  perform_login(user)
+  session[:user_id].must_equal user.id
+  
+  expect {
+  post upvote_path(existing_work.id)
+}.must_change "Vote.count", 1
+
+expect(flash[:result_text]).must_equal "Successfully upvoted!"
+must_redirect_to work_path(existing_work.id)
 end
 
 it "redirects to the work page if the user has already voted for that work" do
-  skip
+  user = users(:kari)
+  perform_login(user)
+  session[:user_id].must_equal user.id
+  
+  vote = Vote.new(user: user, work: existing_work)
+  vote.save
+  
+  expect {
+  post upvote_path(existing_work.id)
+}.wont_change "Vote.count"
+
+expect(flash[:result_text]).must_equal "Could not upvote"
+must_redirect_to work_path(existing_work.id)
 end
 end
 end 
