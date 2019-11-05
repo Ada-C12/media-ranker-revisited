@@ -84,37 +84,111 @@ describe WorksController do
   end
   
   describe "create" do
-    it "creates a work with valid data for a real category" do
-      new_work = { work: { title: "Dirty Computer", category: "album" } }
-      
-      expect {
-        post works_path, params: new_work
-      }.must_change "Work.count", 1
-      
-      new_work_id = Work.find_by(title: "Dirty Computer").id
-      
-      must_respond_with :redirect
-      must_redirect_to work_path(new_work_id)
-    end
-    
-    it "renders bad_request and does not update the DB for bogus data" do
-      bad_work = { work: { title: nil, category: "book" } }
-      
-      expect {
-        post works_path, params: bad_work
-      }.wont_change "Work.count"
-      
-      must_respond_with :bad_request
-    end
-    
-    it "renders 400 bad_request for bogus categories" do
-      INVALID_CATEGORIES.each do |category|
-        invalid_work = { work: { title: "Invalid Work", category: category } }
+    describe "guest user" do  
+      it "cannot create a work with valid data for a real category and will be redirected to main page" do
+        new_work = { 
+          work: { 
+            title: "Dirty Computer", 
+            category: "album"
+          } 
+        }
         
-        proc { post works_path, params: invalid_work }.wont_change "Work.count"
+        expect {
+          post works_path, params: new_work
+        }.wont_change "Work.count"
         
-        Work.find_by(title: "Invalid Work", category: category).must_be_nil
+        must_respond_with :redirect
+        must_redirect_to root_path
+      end
+      
+      it "redirects to main page and does not update the DB for bogus data" do
+        bad_work = { 
+          work: { 
+            title: nil, 
+            category: "book",
+          } 
+        }
+        
+        expect {
+          post works_path, params: bad_work
+        }.wont_change "Work.count"
+        
+        must_respond_with :redirect
+        must_redirect_to root_path
+      end
+      
+      it "redirects to main page and does not update the DB for bogus categories" do
+        INVALID_CATEGORIES.each do |category|
+          invalid_work = { 
+            work: { 
+              title: "Invalid Work", 
+              category: category
+            } 
+          }
+          
+          proc { post works_path, params: invalid_work }.wont_change "Work.count"
+          
+          must_respond_with :redirect
+          must_redirect_to root_path
+        end
+      end
+    end
+
+    describe "logged in user" do
+      before do 
+        @logged_in_user = perform_login(users(:kari))
+      end
+      
+      it "creates a work with valid data for a real category" do
+        new_work = { 
+          work: { 
+            title: "Dirty Computer", 
+            category: "album",
+            user_id: @logged_in_user.id
+          } 
+        }
+        
+        expect {
+          post works_path, params: new_work
+        }.must_change "Work.count", 1
+        
+        new_work_id = Work.find_by(title: "Dirty Computer").id
+        
+        must_respond_with :redirect
+        must_redirect_to work_path(new_work_id)
+      end
+      
+      it "renders bad_request and does not update the DB for bogus data" do
+        bad_work = { 
+          work: { 
+            title: nil, 
+            category: "book",
+            user_id: @logged_in_user.id
+          } 
+        }
+        
+        expect {
+          post works_path, params: bad_work
+        }.wont_change "Work.count"
+        
         must_respond_with :bad_request
+      end
+      
+      it "renders 400 bad_request for bogus categories" do
+        INVALID_CATEGORIES.each do |category|
+          invalid_work = { 
+            work: { 
+              title: "Invalid Work", 
+              category: category,
+              user_id: @logged_in_user.id
+            } 
+          }
+          
+          proc { post works_path, params: invalid_work }.wont_change "Work.count"
+          
+          Work.find_by(title: "Invalid Work", category: category).must_be_nil
+          must_respond_with :bad_request
+        end
       end
     end
   end
@@ -136,12 +210,12 @@ describe WorksController do
         must_respond_with :not_found
       end
     end
-
+    
     describe "logged in user" do
       before do 
         perform_login(users(:dan))
       end
-
+      
       it "succeeds for an extant work ID" do
         get work_path(existing_work.id)
         

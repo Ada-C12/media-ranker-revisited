@@ -2,7 +2,7 @@ class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
   before_action :category_from_work, except: [:root, :index, :new, :create]
-  before_action :check_authorized_user, only: [:index, :show]
+  before_action :check_authorized_user, only: [:index, :show, :create]
   
   def root
     @albums = Work.best_albums
@@ -21,6 +21,7 @@ class WorksController < ApplicationController
   
   def create
     @work = Work.new(media_params)
+    @work.user = @login_user
     @media_category = @work.category
     if @work.save
       flash[:status] = :success
