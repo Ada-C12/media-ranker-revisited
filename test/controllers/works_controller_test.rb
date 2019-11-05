@@ -1,194 +1,246 @@
 require "test_helper"
 
 describe WorksController do
-  # let(:existing_work) { works(:album) }
+  let(:existing_work) { works(:album) }
+  
+  describe "guest user" do  
+    describe "root" do
+      it "succeeds with all media types" do
+        get root_path
 
-  # describe "root" do
-  #   it "succeeds with all media types" do
-  #     get root_path
+        must_respond_with :success
+      end
 
-  #     must_respond_with :success
-  #   end
+      it "succeeds with one media type absent" do
+        only_book = works(:poodr)
+        only_book.destroy
 
-  #   it "succeeds with one media type absent" do
-  #     only_book = works(:poodr)
-  #     only_book.destroy
+        get root_path
 
-  #     get root_path
+        must_respond_with :success
+      end
 
-  #     must_respond_with :success
-  #   end
+      it "succeeds with no media" do
+        Work.all do |work|
+          work.destroy
+        end
 
-  #   it "succeeds with no media" do
-  #     Work.all do |work|
-  #       work.destroy
-  #     end
+        get root_path
 
-  #     get root_path
+        must_respond_with :success
+      end
+    end
 
-  #     must_respond_with :success
-  #   end
-  # end
+    CATEGORIES = %w(albums books movies)
+    INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
 
-  # CATEGORIES = %w(albums books movies)
-  # INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
+    describe "index" do
+      it "cannot access the works index" do
+        get works_path
 
-  # describe "index" do
-  #   it "succeeds when there are works" do
-  #     get works_path
+        expect(flash[:error]).must_equal "You must be logged in to view this section"
+        must_respond_with :redirect
+        must_redirect_to root_path
+      end
+    end
 
-  #     must_respond_with :success
-  #   end
+    describe "new" do
+      it "succeeds" do
+        get new_work_path
 
-  #   it "succeeds when there are no works" do
-  #     Work.all do |work|
-  #       work.destroy
-  #     end
+        must_respond_with :success
+      end
+    end
 
-  #     get works_path
+    describe "create" do
+      it "creates a work with valid data for a real category" do
+        new_work = { work: { title: "Dirty Computer", category: "album" } }
 
-  #     must_respond_with :success
-  #   end
-  # end
+        expect {
+          post works_path, params: new_work
+        }.must_change "Work.count", 1
 
-  # describe "new" do
-  #   it "succeeds" do
-  #     get new_work_path
+        new_work_id = Work.find_by(title: "Dirty Computer").id
 
-  #     must_respond_with :success
-  #   end
-  # end
+        must_respond_with :redirect
+        must_redirect_to work_path(new_work_id)
+      end
 
-  # describe "create" do
-  #   it "creates a work with valid data for a real category" do
-  #     new_work = { work: { title: "Dirty Computer", category: "album" } }
+      it "renders bad_request and does not update the DB for bogus data" do
+        bad_work = { work: { title: nil, category: "book" } }
 
-  #     expect {
-  #       post works_path, params: new_work
-  #     }.must_change "Work.count", 1
+        expect {
+          post works_path, params: bad_work
+        }.wont_change "Work.count"
 
-  #     new_work_id = Work.find_by(title: "Dirty Computer").id
+        must_respond_with :bad_request
+      end
 
-  #     must_respond_with :redirect
-  #     must_redirect_to work_path(new_work_id)
-  #   end
+      it "renders 400 bad_request for bogus categories" do
+        INVALID_CATEGORIES.each do |category|
+          invalid_work = { work: { title: "Invalid Work", category: category } }
 
-  #   it "renders bad_request and does not update the DB for bogus data" do
-  #     bad_work = { work: { title: nil, category: "book" } }
+          proc { post works_path, params: invalid_work }.wont_change "Work.count"
 
-  #     expect {
-  #       post works_path, params: bad_work
-  #     }.wont_change "Work.count"
+          Work.find_by(title: "Invalid Work", category: category).must_be_nil
+          must_respond_with :bad_request
+        end
+      end
+    end
 
-  #     must_respond_with :bad_request
-  #   end
+    describe "show" do
+      it "cannot access the show page for a work" do
+        get work_path(existing_work.id)
 
-  #   it "renders 400 bad_request for bogus categories" do
-  #     INVALID_CATEGORIES.each do |category|
-  #       invalid_work = { work: { title: "Invalid Work", category: category } }
+        expect(flash[:error]).must_equal "You must be logged in to view this section"
+        must_respond_with :redirect
+        must_redirect_to root_path
+      end
+    end
 
-  #       proc { post works_path, params: invalid_work }.wont_change "Work.count"
+    describe "edit" do
+      it "succeeds for an extant work ID" do
+        get edit_work_path(existing_work.id)
 
-  #       Work.find_by(title: "Invalid Work", category: category).must_be_nil
-  #       must_respond_with :bad_request
-  #     end
-  #   end
-  # end
+        must_respond_with :success
+      end
 
-  # describe "show" do
-  #   it "succeeds for an extant work ID" do
-  #     get work_path(existing_work.id)
+      it "renders 404 not_found for a bogus work ID" do
+        bogus_id = existing_work.id
+        existing_work.destroy
 
-  #     must_respond_with :success
-  #   end
+        get edit_work_path(bogus_id)
 
-  #   it "renders 404 not_found for a bogus work ID" do
-  #     destroyed_id = existing_work.id
-  #     existing_work.destroy
+        must_respond_with :not_found
+      end
+    end
 
-  #     get work_path(destroyed_id)
+    describe "update" do
+      it "succeeds for valid data and an extant work ID" do
+        updates = { work: { title: "Dirty Computer" } }
 
-  #     must_respond_with :not_found
-  #   end
-  # end
+        expect {
+          put work_path(existing_work), params: updates
+        }.wont_change "Work.count"
+        updated_work = Work.find_by(id: existing_work.id)
 
-  # describe "edit" do
-  #   it "succeeds for an extant work ID" do
-  #     get edit_work_path(existing_work.id)
+        updated_work.title.must_equal "Dirty Computer"
+        must_respond_with :redirect
+        must_redirect_to work_path(existing_work.id)
+      end
 
-  #     must_respond_with :success
-  #   end
+      it "renders bad_request for bogus data" do
+        updates = { work: { title: nil } }
 
-  #   it "renders 404 not_found for a bogus work ID" do
-  #     bogus_id = existing_work.id
-  #     existing_work.destroy
+        expect {
+          put work_path(existing_work), params: updates
+        }.wont_change "Work.count"
 
-  #     get edit_work_path(bogus_id)
+        work = Work.find_by(id: existing_work.id)
 
-  #     must_respond_with :not_found
-  #   end
-  # end
+        must_respond_with :not_found
+      end
 
-  # describe "update" do
-  #   it "succeeds for valid data and an extant work ID" do
-  #     updates = { work: { title: "Dirty Computer" } }
+      it "renders 404 not_found for a bogus work ID" do
+        bogus_id = existing_work.id
+        existing_work.destroy
 
-  #     expect {
-  #       put work_path(existing_work), params: updates
-  #     }.wont_change "Work.count"
-  #     updated_work = Work.find_by(id: existing_work.id)
+        put work_path(bogus_id), params: { work: { title: "Test Title" } }
 
-  #     updated_work.title.must_equal "Dirty Computer"
-  #     must_respond_with :redirect
-  #     must_redirect_to work_path(existing_work.id)
-  #   end
+        must_respond_with :not_found
+      end
+    end
 
-  #   it "renders bad_request for bogus data" do
-  #     updates = { work: { title: nil } }
+    describe "destroy" do
+      it "succeeds for an extant work ID" do
+        expect {
+          delete work_path(existing_work.id)
+        }.must_change "Work.count", -1
 
-  #     expect {
-  #       put work_path(existing_work), params: updates
-  #     }.wont_change "Work.count"
+        must_respond_with :redirect
+        must_redirect_to root_path
+      end
 
-  #     work = Work.find_by(id: existing_work.id)
+      it "renders 404 not_found and does not update the DB for a bogus work ID" do
+        bogus_id = existing_work.id
+        existing_work.destroy
 
-  #     must_respond_with :not_found
-  #   end
+        expect {
+          delete work_path(bogus_id)
+        }.wont_change "Work.count"
 
-  #   it "renders 404 not_found for a bogus work ID" do
-  #     bogus_id = existing_work.id
-  #     existing_work.destroy
+        must_respond_with :not_found
+      end
+    end
 
-  #     put work_path(bogus_id), params: { work: { title: "Test Title" } }
+    describe "upvote" do
+      it "redirects to the work page if no user is logged in" do
+        new_work = works(:album)
+    
+        post upvote_path(new_work)
 
-  #     must_respond_with :not_found
-  #   end
-  # end
+        must_respond_with :redirect
+        must_redirect_to work_path(new_work.id)       
+      end
 
-  # describe "destroy" do
-  #   it "succeeds for an extant work ID" do
-  #     expect {
-  #       delete work_path(existing_work.id)
-  #     }.must_change "Work.count", -1
+      it "doesn't increase vote count when unlogged user tries to vote" do
+        new_work = works(:album)
+        delete logout_path
+    
+        expect { post upvote_path(new_work) }.wont_change "new_work.votes.count"
 
-  #     must_respond_with :redirect
-  #     must_redirect_to root_path
-  #   end
+        expect(new_work.votes.count).must_equal 2
+      end
 
-  #   it "renders 404 not_found and does not update the DB for a bogus work ID" do
-  #     bogus_id = existing_work.id
-  #     existing_work.destroy
+      it "shows failure message if unlogged user tries to vote" do
+        new_work = works(:album)
+      
+        post upvote_path(new_work)
+        
+        expect(flash[:result_text]).must_equal "You must log in to do that"
+        expect(flash[:status]).must_equal :failure
+      end
 
-  #     expect {
-  #       delete work_path(bogus_id)
-  #     }.wont_change "Work.count"
+      it "redirects to the work page after the user has logged out" do
+        new_work = works(:movie)
+        user = users(:kari)
+        perform_login(user)
+        delete logout_path
 
-  #     must_respond_with :not_found
-  #   end
-  # end
+        expect { post upvote_path(new_work) }.wont_change "new_work.votes.count"
 
-  describe "upvote" do
-    describe "logged" do
+        expect(flash[:result_text]).must_equal "You must log in to do that"
+        expect(flash[:status]).must_equal :failure
+      end
+    end
+  end
+
+  describe "logged" do
+    describe "index" do
+      it "succeeds when there are works" do
+        user = users(:kari)
+        perform_login(user)
+        
+        get works_path
+
+        must_respond_with :success
+      end
+
+      it "succeeds when there are no works" do
+        user = users(:kari)
+        perform_login(user)
+
+        Work.all do |work|
+          work.destroy
+        end
+
+        get works_path
+
+        must_respond_with :success
+      end
+    end
+
+    describe "upvote" do
       it "succeeds for a logged-in user and a fresh user-vote pair" do
         new_work = works(:movie)
         user = users(:kari)
@@ -226,46 +278,26 @@ describe WorksController do
       end
     end
 
-    describe "logged out" do
-      it "redirects to the work page if no user is logged in" do
-        new_work = works(:album)
-    
-        post upvote_path(new_work)
-
-        must_respond_with :redirect
-        must_redirect_to work_path(new_work.id)
-       
-      end
-
-      it "doesn't increase vote count when unlogged user tries to vote" do
-        new_work = works(:album)
-        delete logout_path
-    
-        expect { post upvote_path(new_work) }.wont_change "new_work.votes.count"
-
-        expect(new_work.votes.count).must_equal 2
-      end
-
-      it "shows failure message if unlogged user tries to vote" do
-        new_work = works(:album)
-        delete logout_path
-        
-        post upvote_path(new_work)
-        
-        expect(flash[:result_text]).must_equal "You must log in to do that"
-        expect(flash[:status]).must_equal :failure
-      end
-
-      it "redirects to the work page after the user has logged out" do
-        new_work = works(:movie)
-        user = users(:kari)
+    describe "show" do
+      it "succeeds for an extant work ID" do
+        user = users(:dan)
         perform_login(user)
-        delete logout_path
 
-        expect { post upvote_path(new_work) }.wont_change "new_work.votes.count"
+        get work_path(existing_work.id)
 
-        expect(flash[:result_text]).must_equal "You must log in to do that"
-        expect(flash[:status]).must_equal :failure
+        must_respond_with :success
+      end
+
+      it "renders 404 not_found for a bogus work ID" do
+        user = users(:dan)
+        perform_login(user)
+        
+        destroyed_id = existing_work.id
+        existing_work.destroy
+
+        get work_path(destroyed_id)
+
+        must_respond_with :not_found
       end
     end
   end
