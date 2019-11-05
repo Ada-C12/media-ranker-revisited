@@ -2,6 +2,7 @@ class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
   before_action :category_from_work, except: [:root, :index, :new, :create]
+  before_action :require_login, only: [:index, :show]
 
   def root
     @albums = Work.best_albums
@@ -86,6 +87,25 @@ class WorksController < ApplicationController
   def media_params
     params.require(:work).permit(:title, :category, :creator, :description, :publication_year)
   end
+
+  def require_login
+    @user = User.find_by(id: session[:user_id])
+
+    if @user.nil?
+      flash[:error] = "Please log-in first"
+      return redirect_to root_path
+    end
+  end
+
+  # def require_work_ownership
+  #   @work = Work.find_by(id: params[:id])
+
+  #   if @work.nil? || @product.user.id != @user.id
+  #     flash[:error] = "You are not authorized to edit this product!"
+  #     redirect_to root_path
+  #     return
+  #   end
+  # end
 
   def category_from_work
     @work = Work.find_by(id: params[:id])
