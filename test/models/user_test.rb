@@ -1,4 +1,4 @@
-require "test_helper"
+gitrequire "test_helper"
 
 describe User do
   describe "relations" do
