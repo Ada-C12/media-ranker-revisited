@@ -11,7 +11,13 @@ class WorksController < ApplicationController
   end
 
   def index
-    @works_by_category = Work.to_category_hash
+    if @login_user
+      @works_by_category = Work.to_category_hash
+    else
+      flash[:failure] = "A problem occurred: You must log in to perform this action"
+      redirect_back(fallback_location: root_path)
+      return
+    end  
   end
 
   def new
@@ -88,8 +94,14 @@ class WorksController < ApplicationController
   end
 
   def category_from_work
-    @work = Work.find_by(id: params[:id])
-    render_404 unless @work
-    @media_category = @work.category.downcase.pluralize
+    if @login_user
+      @work = Work.find_by(id: params[:id])
+      render_404 unless @work
+      @media_category = @work.category.downcase.pluralize
+    else
+      flash[:failure] = "A problem occurred: You must log in to perform this action"
+      redirect_back(fallback_location: root_path)
+      return
+    end  
   end
 end

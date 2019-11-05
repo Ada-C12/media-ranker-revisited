@@ -14,5 +14,9 @@ class ApplicationController < ActionController::Base
     if session[:user_id]
       @login_user = User.find_by(id: session[:user_id])
     end
+
+    if @login_user.nil?
+      session[:user_id] = nil
+    end
   end
 end
