@@ -21,16 +21,31 @@ describe User do
 
   describe "validations" do
     it "requires a name" do
-      user = User.new
-      user.valid?.must_equal false
+      user = users(:ada)
+      user.name = nil
+      refute(user.valid?)
       user.errors.messages.must_include :name
     end
 
     it "requires a unique name" do
       user = users(:ada)
       new_user = User.new(name: 'ada759', uid: 1234, email: "ada@com", provider: 'github')
-      new_user.save.must_equal false
+      refute(new_user.valid?)
       new_user.errors.messages.must_include :name
+    end
+
+    it "requires a uid number" do
+      user = users(:ada)
+      user.uid = nil
+      refute(user.valid?)
+      user.errors.messages.must_include :uid
+    end
+
+    it "requires an email" do
+      user = users(:ada)
+      user.email = nil
+      refute(user.valid?)
+      user.errors.messages.must_include :email
     end
   end
 end

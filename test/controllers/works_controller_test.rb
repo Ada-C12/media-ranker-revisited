@@ -1,6 +1,5 @@
 require "test_helper"
 
-
 describe WorksController do
   let(:existing_work) { works(:movie) }
   

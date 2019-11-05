@@ -88,7 +88,6 @@ describe UsersController do
   end 
 
   describe "guest user" do
-
     describe "index" do
       it "cannot access index and responds with a redirect to the root path" do
         get users_path
