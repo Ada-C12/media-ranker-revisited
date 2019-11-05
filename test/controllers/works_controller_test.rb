@@ -112,73 +112,124 @@ describe WorksController do
     end
     
     describe "edit" do
-      it "succeeds for an extant work ID" do
-        get edit_work_path(existing_work.id)
+      it "succeeds for an extant work ID if this work belongs to the logged in user" do
+        existing_work.update(user_id: @user.id)
+        find_work = Work.find_by(id: existing_work.id)
+
+        get edit_work_path(find_work.id)
         must_respond_with :success
       end
       
       it "renders 404 not_found for a bogus work ID" do
-        bogus_id = existing_work.id
-        existing_work.destroy
+        existing_work.update(user_id: @user.id)
+        find_work = Work.find_by(id: existing_work.id)
+        bogus_id = find_work.id
+        find_work.destroy
         
         get edit_work_path(bogus_id)
         must_respond_with :not_found
       end
+
+      it "redirects to root page if the work doesn't belong to the logged in user" do
+        existing_work.update(user_id: users(:betsy).id)
+        find_work = Work.find_by(id: existing_work.id)
+
+        get edit_work_path(find_work.id)
+        must_redirect_to root_path
+        assert_equal "Could not edit work not belong to you!", flash[:result_text]
+      end
     end
     
     describe "update" do
-      it "succeeds for valid data and an extant work ID" do
+      it "succeeds for valid data and an extant work ID if this work belongs to the logged in user" do
+        existing_work.update(user_id: @user.id)
+        find_work = Work.find_by(id: existing_work.id)
         updates = { work: { title: "Dirty Computer" } }
         
         expect {
-          put work_path(existing_work), params: updates
+          put work_path(find_work), params: updates
         }.wont_change "Work.count"
-        updated_work = Work.find_by(id: existing_work.id)
+        updated_work = Work.find_by(id: find_work.id)
         
         updated_work.title.must_equal "Dirty Computer"
-        must_respond_with :redirect
         must_redirect_to work_path(existing_work.id)
+        assert_equal "Successfully updated #{find_work.category} #{find_work.id}", flash[:result_text]
       end
       
       it "renders bad_request for bogus data" do
+        existing_work.update(user_id: @user.id)
+        find_work = Work.find_by(id: existing_work.id)
         updates = { work: { title: nil } }
         
         expect {
-          put work_path(existing_work), params: updates
+          put work_path(find_work), params: updates
         }.wont_change "Work.count"
         
-        work = Work.find_by(id: existing_work.id)
+        work = Work.find_by(id: find_work.id)
         must_respond_with :not_found
+        assert_equal "Could not update #{find_work.category}", flash[:result_text]
       end
       
       it "renders 404 not_found for a bogus work ID" do
-        bogus_id = existing_work.id
-        existing_work.destroy
+        existing_work.update(user_id: @user.id)
+        find_work = Work.find_by(id: existing_work.id)
+        bogus_id = find_work.id
+        find_work.destroy
         
         put work_path(bogus_id), params: { work: { title: "Test Title" } }
         must_respond_with :not_found
       end
+
+      it "redirects to root page if the work doesn't belong to the logged in user" do
+        existing_work.update(user_id: users(:betsy).id)
+        find_work = Work.find_by(id: existing_work.id)
+        updates = { work: { title: "Dirty Computer" } }
+        
+        expect {
+          put work_path(find_work), params: updates
+        }.wont_change "Work.count"
+
+        must_redirect_to root_path
+        assert_equal "Could not edit work not belong to you!", flash[:result_text]
+      end
     end
     
     describe "destroy" do
-      it "succeeds for an extant work ID" do
+      it "succeeds for an extant work ID if this work belongs to the logged in user" do
+        existing_work.update(user_id: @user.id)
+        find_work = Work.find_by(id: existing_work.id)
+        
         expect {
-          delete work_path(existing_work.id)
+          delete work_path(find_work.id)
         }.must_change "Work.count", -1
         
-        must_respond_with :redirect
         must_redirect_to root_path
+        assert_equal "Successfully destroyed #{find_work.category} #{find_work.id}", flash[:result_text]
       end
       
       it "renders 404 not_found and does not update the DB for a bogus work ID" do
-        bogus_id = existing_work.id
-        existing_work.destroy
+        existing_work.update(user_id: @user.id)
+        find_work = Work.find_by(id: existing_work.id)
+        bogus_id = find_work.id
+        find_work.destroy
         
         expect {
           delete work_path(bogus_id)
         }.wont_change "Work.count"
         
         must_respond_with :not_found
+      end
+
+      it "redirects to root page if the work doesn't belong to the logged in user" do
+        existing_work.update(user_id: users(:betsy).id)
+        find_work = Work.find_by(id: existing_work.id)
+        
+        expect {
+          delete work_path(find_work.id)
+        }.wont_change "Work.count"
+
+        must_redirect_to root_path
+        assert_equal "Could not edit work not belong to you!", flash[:result_text]
       end
     end
     

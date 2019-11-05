@@ -1,5 +1,6 @@
 class WorksController < ApplicationController
   before_action :category_from_work, except: [:root, :index, :new, :create]
+  before_action :require_same_user, only: [:edit, :update, :destroy]
   skip_before_action :require_login, only: [:root]
   
   def root
@@ -83,5 +84,13 @@ class WorksController < ApplicationController
     @work = Work.find_by(id: params[:id])
     render_404 unless @work
     @media_category = @work.category.downcase.pluralize
+  end
+
+  def require_same_user
+    if @work.user_id != session[:user_id]
+      flash[:status] = :failure
+      flash[:result_text] = "Could not edit work not belong to you!"
+      return redirect_to root_path
+    end
   end
 end
