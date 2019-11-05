@@ -1,4 +1,6 @@
 class UsersController < ApplicationController
+  skip_before_action :require_login, only: [:create]
+
   def index
     @users = User.all
   end
@@ -8,28 +10,23 @@ class UsersController < ApplicationController
     render_404 unless @user
   end
 
-
   def create
     auth_hash = request.env["omniauth.auth"]
-# raise
+
     user = User.find_by(uid: auth_hash[:uid], provider: "github")
     if user
-      # User was found in the database
-      session[:user_id] = user.id
       flash[:status] = :success
       flash[:result_text] = "Successfully logged in as existing user #{user.username}"
+      session[:user_id] = user.id
     else
-      # User doesn't match anything in the DB
-      # Attempt to create a new user
       user = User.build_from_github(auth_hash)
 
       if user.save
-      session[:user_id] = user.id
-      flash[:status] = :success
-      flash[:result_text] = "Successfully created new user #{user.username} with ID #{user.id}"
+        flash[:status] = :success
+        flash[:result_text] = "Successfully created new user #{user.username} with ID #{user.id}"
+        session[:user_id] = user.id
       else
 
-   
         # Couldn't save the user for some reason. If we
         # hit this it probably means there's a bug with the
         # way we've configured GitHub. Our strategy will
@@ -43,8 +40,8 @@ class UsersController < ApplicationController
     end
 
     # If we get here, we have a valid user instance
-    session[:user_id] = user.id
-    return redirect_to root_path
+    redirect_to root_path
+    return
   end
 
   def destroy
@@ -53,6 +50,7 @@ class UsersController < ApplicationController
 
     redirect_to root_path
   end
+
   # def login_form
   # end
 

@@ -40,13 +40,17 @@
         <li class="nav-item app-header__nav_item">
           <%= link_to "Log out", logout_path, method: "delete", class: "btn btn-primary" %>
         </li>
-
+         <% end %>
+ <% if flash[:error] %>
+ <div class="alert alert-warning alert-container">
+        <%= flash[:error] %>
+</div>
         <% else %>
 
         <li class="nav-item app-header__nav_item">
         <%= link_to "Login with GitHub", github_login_path %>     
 
-  
+             <li class="nav-item app-header__nav_item"> <%= link_to "Login with Github", github_login_path, class: "btn btn-primary" %> </li>
         <% end %>
 
       </ul>

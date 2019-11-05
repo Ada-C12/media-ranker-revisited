@@ -2,6 +2,7 @@ class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
   before_action :category_from_work, except: [:root, :index, :new, :create]
+  skip_before_action :require_login, only: [:root]
 
   def root
     @albums = Work.best_albums
@@ -34,6 +35,7 @@ class WorksController < ApplicationController
   end
 
   def show
+    render_404 unless @work
     @votes = @work.votes.order(created_at: :desc)
   end
 
@@ -41,6 +43,7 @@ class WorksController < ApplicationController
   end
 
   def update
+    render_404 unless @work
     @work.update_attributes(media_params)
     if @work.save
       flash[:status] = :success
@@ -55,6 +58,7 @@ class WorksController < ApplicationController
   end
 
   def destroy
+    render_404 unless @work
     @work.destroy
     flash[:status] = :success
     flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
@@ -89,7 +93,10 @@ class WorksController < ApplicationController
 
   def category_from_work
     @work = Work.find_by(id: params[:id])
-    render_404 unless @work
-    @media_category = @work.category.downcase.pluralize
+    if (@work)
+      @media_category = @work.category.downcase.pluralize
+    else
+      render_404
+    end
   end
 end

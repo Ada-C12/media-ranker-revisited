@@ -35,12 +35,16 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+      perform_login(user)
       get works_path
 
       must_respond_with :success
     end
 
     it "succeeds when there are no works" do
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+      perform_login(user)
       Work.all do |work|
         work.destroy
       end
@@ -53,6 +57,8 @@ describe WorksController do
 
   describe "new" do
     it "succeeds" do
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+      perform_login(user)
       get new_work_path
 
       must_respond_with :success
@@ -61,6 +67,8 @@ describe WorksController do
 
   describe "create" do
     it "creates a work with valid data for a real category" do
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+      perform_login(user)
       new_work = { work: { title: "Dirty Computer", category: "album" } }
 
       expect {
@@ -74,6 +82,8 @@ describe WorksController do
     end
 
     it "renders bad_request and does not update the DB for bogus data" do
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+      perform_login(user)
       bad_work = { work: { title: nil, category: "book" } }
 
       expect {
@@ -85,6 +95,8 @@ describe WorksController do
 
     it "renders 400 bad_request for bogus categories" do
       INVALID_CATEGORIES.each do |category|
+        user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+        perform_login(user)
         invalid_work = { work: { title: "Invalid Work", category: category } }
 
         proc { post works_path, params: invalid_work }.wont_change "Work.count"
@@ -97,12 +109,16 @@ describe WorksController do
 
   describe "show" do
     it "succeeds for an extant work ID" do
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+      perform_login(user)
       get work_path(existing_work.id)
 
       must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+      perform_login(user)
       destroyed_id = existing_work.id
       existing_work.destroy
 
@@ -114,12 +130,16 @@ describe WorksController do
 
   describe "edit" do
     it "succeeds for an extant work ID" do
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+      perform_login(user)
       get edit_work_path(existing_work.id)
 
       must_respond_with :success
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+      perform_login(user)
       bogus_id = existing_work.id
       existing_work.destroy
 
@@ -131,6 +151,8 @@ describe WorksController do
 
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+      perform_login(user)
       updates = { work: { title: "Dirty Computer" } }
 
       expect {
@@ -144,6 +166,8 @@ describe WorksController do
     end
 
     it "renders bad_request for bogus data" do
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+      perform_login(user)
       updates = { work: { title: nil } }
 
       expect {
@@ -156,6 +180,8 @@ describe WorksController do
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+      perform_login(user)
       bogus_id = existing_work.id
       existing_work.destroy
 
@@ -167,6 +193,8 @@ describe WorksController do
 
   describe "destroy" do
     it "succeeds for an extant work ID" do
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+      perform_login(user)
       expect {
         delete work_path(existing_work.id)
       }.must_change "Work.count", -1
@@ -176,6 +204,9 @@ describe WorksController do
     end
 
     it "renders 404 not_found and does not update the DB for a bogus work ID" do
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+      perform_login(user)
+
       bogus_id = existing_work.id
       existing_work.destroy
 
@@ -189,19 +220,86 @@ describe WorksController do
 
   describe "upvote" do
     it "redirects to the work page if no user is logged in" do
-      skip
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+      perform_login(user)
+      bogus_id = existing_work.id
+      expect { post upvote_path(bogus_id) }.wont_change "existing_work.vote_count"
+
+      must_redirect_to work_path
     end
 
     it "redirects to the work page after the user has logged out" do
-      skip
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+      perform_login(user)
+      delete logout_path
+      post upvote_path(existing_work.id)
+      assert(flash[:result_text] = "You must log in to do that")
+      must_redirect_to root_path
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      skip
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+      perform_login(user)
+      bogus_id = existing_work.id
+      expect { post upvote_path(bogus_id) }.must_change "Vote.count", 1
+
+      must_redirect_to work_path(existing_work.id)
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      skip
+      user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+      perform_login(user)
+      bogus_id = existing_work.id
+      expect { post upvote_path(bogus_id) }.must_change "Vote.count", 1
+      expect { post upvote_path(bogus_id) }.wont_change "existing_work.vote_count"
+
+      must_redirect_to work_path(existing_work.id)
+    end
+  end
+
+  describe "AuthTests" do
+    let(:existing_work) { works(:album) }
+
+    describe "Guest user" do
+      it "can access the main page without an error message" do
+        get root_path
+
+        must_respond_with :success
+      end
+
+      it "when accessing the index page and should be redirected to the main page with an error message" do
+        get works_path
+
+        must_redirect_to root_path
+        flash[:error].must_equal "You must be logged in to view this section"
+      end
+
+      it "when accessing the show page for any work should be redirected to the main page with an error message" do
+        get work_path(existing_work.id)
+
+        must_redirect_to root_path
+        flash[:error].must_equal "You must be logged in to view this section"
+      end
+    end
+
+    describe "Logged in user" do
+      it "can access the show page for any work of any category" do
+        user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+        perform_login(user)
+
+        get work_path(existing_work.id)
+
+        must_respond_with :success
+      end
+
+      it "can access the show page for any index page" do
+        user = User.new(provider: "github", uid: 99999, username: "test_user", email: "test@user.com")
+        perform_login(user)
+
+        get works_path
+
+        must_respond_with :success
+      end
     end
   end
 end
