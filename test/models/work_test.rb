@@ -82,8 +82,9 @@ describe Work do
 
     it "tracks the number of votes" do
       work = Work.create!(title: "test title", category: "movie")
+      uid = 43298
       4.times do |i|
-        user = User.create!(username: "user#{i}")
+        user = User.create!(uid: uid += 1)
         Vote.create!(user: user, work: work)
       end
       work.vote_count.must_equal 4
@@ -96,8 +97,9 @@ describe Work do
       # TODO DPR: This runs pretty slow. Fixtures?
       # Create users to do the voting
       test_users = []
+      uid = 5357
       20.times do |i|
-        test_users << User.create!(username: "user#{i}")
+        test_users << User.create!(uid: uid += 1)
       end
 
       # Create media to vote upon
