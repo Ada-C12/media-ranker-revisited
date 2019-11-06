@@ -245,7 +245,7 @@ DEPENDENCIES
   pg (~> 0.18)
   pry-rails
   puma (~> 3.0)
-  rails
+  rails (~> 5.2.1)
   sass-rails
   spring
   spring-watcher-listen (~> 2.0.0)
