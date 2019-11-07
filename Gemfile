@@ -46,6 +46,8 @@ group :development, :test do
 
   # Use pry for rails console
   gem 'pry-rails'
+  gem 'ruby-debug-ide', '0.7.0'
+  gem 'debase'
 end
 
 group :test do
@@ -62,7 +64,12 @@ group :development do
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0.0'
+  gem 'dotenv-rails'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+
+gem "omniauth"
+gem "omniauth-github"
+gem "omniauth-facebook"

@@ -1,4 +1,4 @@
-require "test_helper"
+require "./test/test_helper"
 
 describe WorksController do
   let(:existing_work) { works(:album) }
@@ -35,12 +35,14 @@ describe WorksController do
 
   describe "index" do
     it "succeeds when there are works" do
+      perform_login(users(:georgina))
       get works_path
 
       must_respond_with :success
     end
 
     it "succeeds when there are no works" do
+      perform_login(users(:georgina))
       Work.all do |work|
         work.destroy
       end
@@ -48,6 +50,20 @@ describe WorksController do
       get works_path
 
       must_respond_with :success
+    end
+
+    it "can be seen only by logged in users" do
+      perform_login(users(:georgina))
+      get works_path
+
+      must_respond_with :success
+    end
+
+    it "can not be seen by guest users" do
+      get works_path
+
+      must_redirect_to root_path
+      expect(flash[:result_text]).must_include "You need to login to see all the media."
     end
   end
 
@@ -97,6 +113,7 @@ describe WorksController do
 
   describe "show" do
     it "succeeds for an extant work ID" do
+      perform_login(users(:georgina))
       get work_path(existing_work.id)
 
       must_respond_with :success
@@ -109,6 +126,20 @@ describe WorksController do
       get work_path(destroyed_id)
 
       must_respond_with :not_found
+    end
+
+    it "can be seen only by logged in users" do
+      perform_login(users(:israel))
+      get work_path(existing_work.id)
+
+      must_respond_with :success
+    end
+
+    it "can not be seen by guest users" do
+      get work_path(existing_work.id)
+
+      must_redirect_to root_path
+      expect(flash[:result_text]).must_include "You need to login to see this content."
     end
   end
 
@@ -131,6 +162,7 @@ describe WorksController do
 
   describe "update" do
     it "succeeds for valid data and an extant work ID" do
+      perform_login(users(:georgina))
       updates = { work: { title: "Dirty Computer" } }
 
       expect {
@@ -144,6 +176,7 @@ describe WorksController do
     end
 
     it "renders bad_request for bogus data" do
+      perform_login(users(:georgina))
       updates = { work: { title: nil } }
 
       expect {
@@ -156,6 +189,7 @@ describe WorksController do
     end
 
     it "renders 404 not_found for a bogus work ID" do
+      perform_login(users(:georgina))
       bogus_id = existing_work.id
       existing_work.destroy
 
@@ -163,10 +197,32 @@ describe WorksController do
 
       must_respond_with :not_found
     end
+
+    it "can only update a work created by the logged user" do
+      perform_login(users(:georgina))
+      work = works(:album)
+      
+      put work_path(work.id), params: { work: { title: "Test Title" } }
+
+      work = Work.find_by(id: work.id)
+
+      expect(work.title).must_equal "Test Title"
+    end
+
+    it "can not update a work created by other user" do
+      perform_login(users(:georgina))
+      work = works(:another_album)
+      
+      put work_path(work.id)
+      
+      expect(flash[:result_text]).must_include "You can only update the media created by yourself."
+      must_redirect_to work_path(work.id)
+    end
   end
 
   describe "destroy" do
     it "succeeds for an extant work ID" do
+      perform_login(users(:georgina))
       expect {
         delete work_path(existing_work.id)
       }.must_change "Work.count", -1
@@ -185,23 +241,60 @@ describe WorksController do
 
       must_respond_with :not_found
     end
+
+    it "can only destroy a work created by the logged user" do
+      perform_login(users(:georgina))
+      work = works(:album)
+      expect {
+        delete work_path(work.id)
+      }.must_change "Work.count", -1
+    end
+
+
+    it "can not destroy a work created by other user" do
+      perform_login(users(:georgina))
+      work = works(:another_album)
+      
+      delete work_path(work.id)
+      
+      expect(flash[:result_text]).must_include "You can only delete the media created by yourself."
+      must_redirect_to root_path
+    end
   end
 
   describe "upvote" do
     it "redirects to the work page if no user is logged in" do
-      skip
+      work = works(:album)
+      post upvote_path(work.id)
+
+      must_redirect_to work_path(work.id)
     end
 
     it "redirects to the work page after the user has logged out" do
-      skip
+      user = users(:georgina)
+
+      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(user))
+
+      get auth_callback_path(:github)
+      delete logout_path
+      must_redirect_to root_path
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
-      skip
+      perform_login(users(:georgina))
+      work = works(:another_album)
+      
+      expect {
+        post upvote_path(work.id)
+      }.must_change "Vote.count", 1
     end
 
     it "redirects to the work page if the user has already voted for that work" do
-      skip
+      perform_login(users(:georgina))
+      work = works(:album)
+      post upvote_path(work.id)
+      post upvote_path(work.id)
+      must_redirect_to work_path(work.id)
     end
   end
 end
