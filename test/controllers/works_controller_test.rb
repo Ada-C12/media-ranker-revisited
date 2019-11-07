@@ -34,13 +34,18 @@ describe WorksController do
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
 
   describe "index" do
-    it "succeeds when there are works" do
+    it "redirects if there are no logged in user" do
       get works_path
-
+      must_redirect_to root_path
+    end
+    it "succeeds when there are works" do
+      perform_login
+      get works_path
       must_respond_with :success
     end
 
     it "succeeds when there are no works" do
+      perform_login
       Work.all do |work|
         work.destroy
       end
@@ -97,6 +102,7 @@ describe WorksController do
 
   describe "show" do
     it "succeeds for an extant work ID" do
+      perform_login
       get work_path(existing_work.id)
 
       must_respond_with :success
@@ -187,13 +193,43 @@ describe WorksController do
     end
   end
 
+#   describe "going to the detail page of the current user" do
+#     it "responds with success if a user is logged in" do
+#       perform_login
+
+#       get current_user_path
+
+#       must_respond_with :success
+#     end
+
+#     it "responds with a redirect if no user is logged in" do
+#       get current_user_path
+#       must_respond_with :redirect
+#     end
+#   end
+# end
+
   describe "upvote" do
     it "redirects to the work page if no user is logged in" do
-      skip
+      # skip
+      get upvote_path
+
+      # Assert
+      # must_respond_with :not_found
+
+      must_redirect_to root_path
+      
     end
 
     it "redirects to the work page after the user has logged out" do
-      skip
+      
+      # session[:user_id] = nil
+      delete logout_path
+      # Act
+      # get current_user_path
+
+      must_redirect_to root_path
+
     end
 
     it "succeeds for a logged-in user and a fresh user-vote pair" do
