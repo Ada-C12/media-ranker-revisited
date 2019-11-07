@@ -42,6 +42,13 @@ describe WorksController do
       must_respond_with :success
     end
 
+    it "succeeds when there are works" do
+
+      get works_path
+
+      must_respond_with :redirect
+    end
+
     it "succeeds when there are no works" do
       perform_login
 
