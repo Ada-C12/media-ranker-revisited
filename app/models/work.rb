@@ -1,53 +1,44 @@
 class Work < ApplicationRecord
-  CATEGORIES = %w(album book movie)
-  has_many :votes, dependent: :destroy
-  has_many :ranking_users, through: :votes, source: :user
-
-  validates :category, presence: true,
-                       inclusion: {in: CATEGORIES}
-
-  validates :title, presence: true,
-                    uniqueness: {scope: :category}
-
-  # This is called a model filter, and is very similar to a controller filter.
-  # We want to fixup the category *before* we validate, because
-  # our validations are rather strict about what's OK.
-  before_validation :fix_category
-
-  def self.to_category_hash
-    data = {}
-    CATEGORIES.each do |cat|
-      data[cat] = by_category(cat)
-    end
-    return data
+  has_many :votes
+  
+  validates :category, presence: true;
+  validates :title, presence: true, uniqueness: true
+  validates :creator, presence: true
+  validates :publication_year, presence: true #, numericality: { with: /\A\d{4}\z/, message: "Please Enter 4 Digit Year" }
+  
+  def total_votes
+    upvotes = Vote.where(work_id: self.id)
+    return upvotes.count
   end
-
-  def self.by_category(category)
-    category = category.singularize.downcase
-    self.where(category: category).order(vote_count: :desc)
-  end
-
-  def self.best_albums
-    top_ten("album")
-  end
-
-  def self.best_books
-    top_ten("book")
-  end
-
-  def self.best_movies
-    top_ten("movie")
-  end
-
+  
   def self.top_ten(category)
-    where(category: category).order(vote_count: :desc).limit(10)
-  end
-
-  private
-
-  def fix_category
-    if self.category
-      self.category = self.category.downcase.singularize
+    works_to_sort = Work.where(category: category)
+    top_ten = works_to_sort.sort_by{ |work| -work.total_votes}
+    if top_ten.count < 10
+      list_count = top_ten.count
+    elsif top_ten.count == 0
+      return nil
+    else
+      list_count = 10
     end
+    return top_ten.slice(0..list_count)
   end
+  
+  def self.spotlight 
+    works = Work.all
+    most_frequent_item = works.max_by{ |work| work.total_votes}
+    return most_frequent_item
+  end
+  
+  
+  
+  
+  # def self.spotlight
+  #   vote_count = {}
+  #   @works.each do |work|
+  #     vote_count[:work.title] => total_votes(work.id)
+  #   end)
+  #   top_work = hash.key(hash.values.max)
+  #   return top_work
+  # end
 end

@@ -1,31 +1,36 @@
-<h2>User Summary: <%= link_to @user.username, user_path(@user) %></h2>
-<p>Joined site <%= render_date @user.created_at %></p>
+<h2>ID: <%= @user.id %></h2>
+<h2>Name: <%= @user.name %></h2>
+<h3>Join Date: <%= @user.join_date %></h3>
+<h3>Total Upvotes: <%= @user.total_votes(@user.id) %></h3>
 
-<section class="user-votes__container">
-  <h3 class="user-votes__header">Votes</h3>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Media Title</th>
-        <th>Created By</th>
-        <th>Published</th>
-        <th>Category</th>
-        <th>Voted On</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @user.votes.each do |vote| %>
-        <tr>
-          <td><%= link_to vote.work.title, work_path(vote.work) %></td>
-          <td><%= vote.work.creator %></td>
-          <td><%= vote.work.publication_year %></td>
-          <td><%= vote.work.category.capitalize %></td>
-          <td><%= render_date vote.created_at %></td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-</section>
+<p><%= link_to "Edit User", edit_user_path %></p>
+<p><%= link_to "Delete User", user_path(@user), method: :delete, data: {confirm: "Are you sure?"}%></p>
 
-<%= link_to "See all Users", users_path, class: "btn btn-secondary" %>
-<%= link_to "Back to Media List", root_path, class: "btn btn-primary" %>
+<h2>Vote Log</h2>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">Vote ID</th>
+      <th scope="col">Category</th>
+      <th scope="col">Title</th>
+      <th scope="col">Creator</th>
+      <th scope="col">Vote Date</th>
+      <th scope="col">DELETE</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% @user.votes.each do |vote| %>
+    <tr> 
+      <td><%= vote.id %></td>
+      <td><%= (vote.work.category).capitalize %></td>
+      <td><%= link_to vote.work.title, work_path(vote.work) %></td>
+      <td><%= vote.work.title %></td>
+      <td><%= vote.date%></td>
+      <td><%= link_to "Delete Vote", vote_path(vote.id), method: :delete, data: {confirm: "Are you sure?"}%></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+
+<p><%= link_to "Return to User List", users_path %></p>

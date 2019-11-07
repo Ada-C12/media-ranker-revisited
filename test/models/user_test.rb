@@ -1,42 +1,48 @@
 require "test_helper"
 
 describe User do
-  describe "relations" do
-    it "has a list of votes" do
-      dan = users(:dan)
-      dan.must_respond_to :votes
-      dan.votes.each do |vote|
-        vote.must_be_kind_of Vote
-      end
+  before do
+    @user = users(:kennedy)
+    @user2 = users(:oprah)
+    @work = works(:pill)
+    @vote = votes(:pill_vote)
+  end
+  
+  describe "instantiations" do
+    it "can be instantiated" do
+      # Assert
+      expect(@user.valid?).must_equal true
     end
-
-    it "has a list of ranked works" do
-      dan = users(:dan)
-      dan.must_respond_to :ranked_works
-      dan.ranked_works.each do |work|
-        work.must_be_kind_of Work
+    
+    it "will have the required fields" do
+      [:name, :uid, :email, :join_date, :provider].each do |field|
+        expect(@user).must_respond_to field
       end
     end
   end
-
+  
   describe "validations" do
-    it "requires a username" do
-      user = User.new
-      user.valid?.must_equal false
-      user.errors.messages.must_include :username
+    it "requies name to be instantiated" do
+      @user.name = nil
+      expect(@user.valid?).must_equal false
+      expect(@user.errors.messages).must_include :name    
     end
-
-    it "requires a unique username" do
-      username = "test username"
-      user1 = User.new(username: username)
-
-      # This must go through, so we use create!
-      user1.save!
-
-      user2 = User.new(username: username)
-      result = user2.save
-      result.must_equal false
-      user2.errors.messages.must_include :username
+    
+    it "requies a unique name to be instantiated" do
+      user_2 = User.new(name: "Katie Kennedy", join_date: Time.now)
+      expect(user_2.valid?).must_equal false      
+    end
+  end
+  
+  describe "relations" do
+    
+  end
+  
+  describe "custom methods" do
+    it "returns total upvotes contributed by user" do
+      expect(@user.total_votes(@user)).must_equal 2
+      expect(@user2.total_votes(@user2.id)).must_equal 0
     end
   end
 end
+

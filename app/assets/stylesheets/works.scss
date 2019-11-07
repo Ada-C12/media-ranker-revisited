@@ -1,11 +1,28 @@
-// Place all the styles related to the Media controller here.
+// Place all the styles related to the Works controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-.works-votes__container {
-  margin-top: 2rem;
+.category_link{
+  text-align: right;
+  font-size: 1.25em;
+  padding: 10px;
 }
 
-.works-votes__header {
-  color: black;
+.work_info {
+  text-align: center;
+}
+
+.form_table {
+  padding-left: 15%;
+  width: 70%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.info_p {
+  padding-left: 5%;
+}
+
+button {
+  text-align: center;
 }

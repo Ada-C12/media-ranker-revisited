@@ -1,31 +1,39 @@
-<section>
-  <h2><%= @work.title %></h2>
-  <p>Created by: <%= @work.creator %></p>
-  <p>Published: <%= @work.publication_year %></p>
-  <p><%= @work.description %></p>
-  <section>
-    <%= link_to "Back to media ranks", root_path, class: "btn btn-primary" %>
-    <%= link_to "Edit", edit_work_path(@work), class: "btn btn-primary" %>
-    <%= link_to "Upvote", upvote_path(@work), class: "btn btn-primary", method: :post %>
-    <%= link_to "Delete", work_path(@work), class: "btn btn-danger", method: "delete", data: { confirm: "Are you sure?" } %>
-  </section>
+<h1><%= @work.title %></h1>
+<h2><%= @work.creator %></h2>
+<td></td>
+</tr>
+<tr>
+<td rowspan="2"><p><%= @work.description %></p></td>
+<td><p><%= (@work.category).capitalize %></p></td>
+</tr>
+<tr>
+<td><p>Publication Year: <%= @work.publication_year %></p></td>
+</tr>
+</table>
 </section>
+<%= link_to '<button type="button" class="btn btn-primary">Back to Works</button>'.html_safe, works_path %>
+<%= link_to '<button type="button" class="btn btn-primary">Edit</button>'.html_safe, edit_work_path %>
+<%= link_to '<button type="button" class="btn btn-primary">Upvote</button>'.html_safe, vote_path(@work.id), method: :post %>
+<%= link_to '<button type="button" class="btn btn-primary">Delete</button>'.html_safe, work_path(@work), method: :delete, data: {confirm: "Are you sure?"}%>
 
-<section class="works-votes__container">
-  <h3 class="works-votes__header"><%= @votes.count %> Votes for this <%= @media_category.capitalize.singularize %></h3>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>User</th>
-        <th>Date</th>
-      </tr>
-    </thead>
-    <tbody>
-    <% @votes.each do |vote| %>
-      <tr>
-        <td><%= link_to vote.user.username, user_path(vote.user) %></td>
-        <td><%= render_date vote.created_at %></td>
-      </li>
-    <% end %>
-  </ul>
-</section>
+
+<h2>Vote Log - Total Votes: <%= @work.total_votes %></h2>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">User</th>
+      <th scope="col">Date</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% @work.votes.each do |vote| %>
+    <tr>  
+      <td><%= vote.user.name %></td>
+      <td><%= vote.date%></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+
+<p><%= link_to "Return to Works List", works_path %></p>

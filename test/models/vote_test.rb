@@ -1,46 +1,57 @@
 require "test_helper"
+require "pry"
 
 describe Vote do
-  describe "relations" do
-    it "has a user" do
-      v = votes(:one)
-      v.must_respond_to :user
-      v.user.must_be_kind_of User
-    end
-
-    it "has a work" do
-      v = votes(:one)
-      v.must_respond_to :work
-      v.work.must_be_kind_of Work
+  before do
+    @user = users(:kennedy)
+    @users = users(:kennedy, :gaga)
+    
+    @work = works(:pill)
+    @work2 = works(:kondo)
+    @works = works(:pill, :peppers, :dresses, :kondo)
+    
+    @vote = votes(:pill_vote)
+    @votes = votes(:pill_vote, :pill_vote2, :peppers_vote, :dresses_vote)
+    #binding.pry
+  end
+  
+  describe "instantiations" do
+    it "can be instantiated" do
+      # Assert
+      expect(@vote.valid?).must_equal true
     end
   end
-
+  
   describe "validations" do
-    let (:user1) { User.new(username: "chris") }
-    let (:user2) { User.new(username: "chris") }
-    let (:work1) { Work.new(category: "book", title: "House of Leaves") }
-    let (:work2) { Work.new(category: "book", title: "For Whom the Bell Tolls") }
-
-    it "allows one user to vote for multiple works" do
-      vote1 = Vote.new(user: user1, work: work1)
-      vote1.save!
-      vote2 = Vote.new(user: user1, work: work2)
-      vote2.valid?.must_equal true
+    it "requies work_id to be instantiated" do
+      @vote.work_id = nil
+      expect(@vote.valid?).must_equal false
+      expect(@vote.errors.messages).must_include :work_id   
     end
-
-    it "allows multiple users to vote for a work" do
-      vote1 = Vote.new(user: user1, work: work1)
-      vote1.save!
-      vote2 = Vote.new(user: user2, work: work1)
-      vote2.valid?.must_equal true
-    end
-
-    it "doesn't allow the same user to vote for the same work twice" do
-      vote1 = Vote.new(user: user1, work: work1)
-      vote1.save!
-      vote2 = Vote.new(user: user1, work: work1)
-      vote2.valid?.must_equal false
-      vote2.errors.messages.must_include :user
+    
+    it "requies user_id to be instantiated" do
+      @vote.user_id = nil
+      expect(@vote.valid?).must_equal false
+      expect(@vote.errors.messages).must_include :user_id   
     end
   end
+  
+  describe "relations" do
+    it "can relate work_id and user_id to vote" do
+      expect(@vote.work).must_be_instance_of Work
+      expect(@vote.work_id).must_equal @work.id
+      expect(@vote.user_id).must_equal @user.id
+      
+      user = User.create!(name: "Tom Brady", email: "Test@gmail.com", uid: 98767, join_date: Time.now)
+      work = Work.create!(category: "book", title: "Where the Sidewalk Ends", creator: "Shel Silverstein", publication_year: 1992)
+      vote = Vote.create!(work_id: work.id, user_id: user.id, date: Time.now)
+      
+      expect(vote.work_id).must_equal work.id
+      expect(vote.user_id).must_equal user.id
+      
+      expect(vote.work).must_equal work
+      expect(vote.user).must_equal user
+    end
+  end
+  
 end

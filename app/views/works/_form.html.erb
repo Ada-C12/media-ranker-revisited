@@ -1,32 +1,35 @@
-<section>
-  <%= form_with model: @work do |f| %>
-    <div class="form-group">
-      <%= f.label :category %>
-      <%= f.select :category, Work::CATEGORIES, {}, class: "form-control" %>
-    </div>
+<% if @work.errors.any? %>
+  <h1>Errors</h1>
+  <ul class="errors">
+    <% @work.errors.each do |column, message| %>
+      <li>
+        <strong><%= column.capitalize %></strong> <%= message %>
+      </li>
+    <% end %>
+  </ul>
+<% end %>
+<h1><%= (verb_name).capitalize %> Work</h1>
+<p class="info_p">Please provide the following information to <%= verb_name %> a work to our database:</p>
 
-    <div class="form-group">
-      <%= f.label :title %>
-      <%= f.text_field :title, class: "form-control" %>
-    </div>
+<%= form_with model: @work, class: 'create-work' do |f| %>
+<section class="form_table">
+  <%= f.label :category %>
+  <%= f.select :category, ['album', 'book', 'movie']%>
 
-    <div class="form-group">
-      <%= f.label :creator %>
-      <%= f.text_field :creator, class: "form-control" %>
-    </div>
+  <%= f.label :title %>
+  <%= f.text_field :title %>
 
-    <div class="form-group">
-      <%= f.label :publication_year %>
-      <%= f.text_field :publication_year, class: "form-control" %>
-    </div>
+  <%= f.label :creator %>
+  <%= f.text_field :creator %>
 
-    <div class="form-group">
-      <%= f.label :description %>
-      <%= f.text_area :description, class: "form-control" %>
-    </div>
+  <%= f.label :publication_year %>
+  <%= f.number_field :publication_year, :max => 9999, :min => 0000 %>
 
-    <div class="form-group">
-      <%= f.submit class: "btn btn-primary" %>
-    </div>
-  <% end %>
-</section>
+  <%= f.label :description %>
+  <%= f.text_field :description %>
+  
+  <div></div>
+  <%= f.submit "Save Work" %>
+  </section>
+<% end %>
+</div>
