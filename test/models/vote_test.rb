@@ -29,10 +29,11 @@ describe Vote do
     end
 
     it "allows multiple users to vote for a work" do
-      vote1 = Vote.new(user: user1, work: work1)
-      vote1.save!
-      vote2 = Vote.new(user: user2, work: work1)
-      vote2.valid?.must_equal true
+      vote_a = Vote.new(user: user1, work: work1)
+      vote_a.save!
+      vote_b = Vote.new(user: user2, work: work1)
+      vote_b.save!
+      vote_b.valid?.must_equal true
     end
 
     it "doesn't allow the same user to vote for the same work twice" do
