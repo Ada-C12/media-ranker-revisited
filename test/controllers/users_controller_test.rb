@@ -26,7 +26,7 @@ describe UsersController do
     
     it "redirects to the login route if given invalid user data" do
       start_count = User.count
-      user = User.new(provider: "github", uid: 99999, email: "test@user.com")
+      user = User.new(provider: "github", email: "test@user.com")
       
       perform_login(user)
       

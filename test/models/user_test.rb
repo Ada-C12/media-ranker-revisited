@@ -9,7 +9,7 @@ describe User do
         vote.must_be_kind_of Vote
       end
     end
-
+    
     it "has a list of ranked works" do
       dan = users(:dan)
       dan.must_respond_to :ranked_works
@@ -18,25 +18,24 @@ describe User do
       end
     end
   end
-
+  
   describe "validations" do
     it "requires a username" do
-      user = User.new
-      user.valid?.must_equal false
-      user.errors.messages.must_include :username
+      user = User.new(username: "user test", uid: 9999)
+      user.valid?.must_equal true
     end
-
-    it "requires a unique username" do
-      username = "test username"
-      user1 = User.new(username: username)
-
+    
+    it "requires a unique uid" do
+      username = "test uid"
+      user1 = User.new(username: username, uid: 1111111)
+      
       # This must go through, so we use create!
       user1.save!
-
-      user2 = User.new(username: username)
+      
+      user2 = User.new(username: username, uid:1111111)
       result = user2.save
       result.must_equal false
-      user2.errors.messages.must_include :username
+      user2.errors.messages.must_include :uid
     end
   end
 end
