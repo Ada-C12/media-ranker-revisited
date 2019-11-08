@@ -14,7 +14,7 @@ class WorksController < ApplicationController
     if @login_user
       @works_by_category = Work.to_category_hash
     else
-      flash[:failure] = "You must log in to access that page."
+      flash[:warning] = "You must log in to access that page."
       redirect_to root_path
     end
   end
@@ -43,7 +43,7 @@ class WorksController < ApplicationController
     if @login_user
       @votes = @work.votes.order(created_at: :desc)
     else
-      flash[:failure] = "You must log in to access that page."
+      flash[:warning] = "You must log in to access that page."
       redirect_to root_path
     end
   end

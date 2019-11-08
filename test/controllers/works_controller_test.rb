@@ -60,7 +60,7 @@ describe WorksController do
       it "redirects to root path when not logged in" do
         get works_path
         
-        flash[:failure].must_equal "You must log in to access that page."
+        flash[:warning].must_equal "You must log in to access that page."
         must_redirect_to root_path
       end
     end
@@ -146,7 +146,7 @@ describe WorksController do
       it "redirects to root path when not logged in" do
         get work_path(existing_work.id)
         
-        flash[:failure].must_equal "You must log in to access that page."
+        flash[:warning].must_equal "You must log in to access that page."
         must_redirect_to root_path
       end
     end
