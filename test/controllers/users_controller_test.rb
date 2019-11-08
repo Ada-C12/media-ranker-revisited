@@ -32,7 +32,7 @@ describe UsersController do
     end
     
     it "creates an account for a new user and redirects to the root route" do
-      new_user = User.new(username:"Hallie", email: "hfake@fake.com", uid: 473837 )
+      new_user = User.new(username:"Hallie", email: "hfake@fake.com", uid: 473837)
       
       OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(new_user))
       expect{ get auth_callback_path(:github) }.must_change "User.count", 1
@@ -40,7 +40,7 @@ describe UsersController do
     end
     
     it "redirects to the login route if given invalid user data" do
-      new_user = User.new(username:"Hallie", email: "hfake@fake.com", uid: nil )
+      new_user = User.new(username:"Hallie", email: "hfake@fake.com", uid: nil)
       
       OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(mock_auth_hash(new_user))
       expect{ get auth_callback_path(:github) }.wont_change "User.count"
