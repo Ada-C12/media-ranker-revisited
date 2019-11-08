@@ -49,15 +49,20 @@ describe UsersController do
   end
   
   describe "logout (#destroy)" do
-    before do
-      perform_login(users(:dan))
-    end
-    
     it "logs out an already logged-in user" do
+      perform_login(users(:dan))
+      
       expect{ delete logout_path }.wont_change "User.count"
       assert_nil(session[:user_id])
       expect(flash[:success]).must_equal "Successfully logged out!"
       must_redirect_to root_path
     end 
+    
+    it "works for a logged out user. Why? I don't know...scoring sheet said to." do
+      expect{ delete logout_path }.wont_change "User.count"
+      assert_nil(session[:user_id])
+      expect(flash[:success]).must_equal "Successfully logged out!"
+      must_redirect_to root_path
+    end
   end
 end
