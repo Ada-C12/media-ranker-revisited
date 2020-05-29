@@ -2,6 +2,14 @@
 
 dan:
   username: dan
-
+  email: dan@hello.com
+  uid: 232323
+  provider: github
+  
+  
 kari:
   username: kari
+  provider: github
+  uid: 424242
+  email: kari@hello.com
+  
